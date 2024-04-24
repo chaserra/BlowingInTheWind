@@ -1,6 +1,12 @@
 // Set access token
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMjVmMzkzYS02MTM4LTQ2YTAtYjNhMy05ZmFhOWY5Y2Q5MDIiLCJpZCI6MjA5ODI3LCJpYXQiOjE3MTM1MDAyNjN9.SrQ5rn8K72P_luv7RePRsjLQOgA8QcpRIFdOCxUvG24';
 
+//Import weather.js to bitw script
+import { fetchWeatherData } from "./weather.js";
+
+//module lever variables to store wind data
+let windSpeed, windDirection;
+
 // Initialise viewer
 const viewer = new Cesium.Viewer("cesiumContainer", {
   terrain: Cesium.Terrain.fromWorldTerrain(),
@@ -19,15 +25,33 @@ const cameraOffset = new Cesium.HeadingPitchRange(0.0, pitchAngle, 300.0);
 const buildingTileSet = await Cesium.createOsmBuildingsAsync();
 viewer.scene.primitives.add(buildingTileSet);
 
+//conversion to degrees from cartesian
+function cartesianToDegrees(cartesian) {
+  const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+  const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+  return {longitude, latitude};
+}
 // UoW Student Centre Coordinates
-const uowsc = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 100.0);
+const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 100.0);
+const uowscDegrees = cartesianToDegrees(uowscCartesian);
+
+//gets the wind data and stores it to the module level variables 
+async function fetchAndStoreWind(latitude, longitude){
+  const weatherWind=  await fetchWeatherData(latitude, longitude);
+  windDirection = weatherWind.windDirection;
+  windSpeed = weatherWind.windSpeed;
+}
+
+fetchAndStoreWind(uowscDegrees.latitude, uowscDegrees.longitude);
+
 // SAMPLE DATA. Change using wind data
 const pos1 = Cesium.Cartesian3.fromDegrees(175.3197, -37.78765, 100.0);
 const pos2 = Cesium.Cartesian3.fromDegrees(175.3157, -37.78455, 125.0);
 const pos3 = Cesium.Cartesian3.fromDegrees(175.3137, -37.78635, 150.0);
 const pos4 = Cesium.Cartesian3.fromDegrees(175.3123, -37.78675, 110.0);
 const pos5 = Cesium.Cartesian3.fromDegrees(175.3127, -37.78885, 100.0);
-const pos6 = uowsc;
+const pos6 = uowscCartesian;
 const pos_array = [pos1, pos2, pos3, pos4, pos5, pos6];
 
 // Setup clock
@@ -55,7 +79,7 @@ function createPath() {
   const positionProperty = new Cesium.SampledPositionProperty();
 
   // Set initial position at startTime
-  positionProperty.addSample(startTime, uowsc);
+  positionProperty.addSample(startTime, uowscCartesian);
 
   // Plot points on the map
   for (let i = 0; i < pos_array.length; i++) {  
