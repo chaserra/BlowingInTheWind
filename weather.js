@@ -1,7 +1,10 @@
+// Import config.js
+import config from "./config.js";
+
 async function fetchWeatherData(lat, lon){
 
     try{
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=1a51a1358e149e76be1fde4d7c790322`);
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=`+config.WEATHER_API_KEY);
 
         if(!response.ok){
             throw new Error("Could not fetch resource");
@@ -13,6 +16,7 @@ async function fetchWeatherData(lat, lon){
         const windDirection = weatherData.wind.deg; 
         //returns wind data as an object 
         return { windSpeed, windDirection }; 
+
    
     }
     catch(error){

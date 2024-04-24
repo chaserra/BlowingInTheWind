@@ -1,5 +1,8 @@
+// Import config.js
+import config from "./config.js";
+
 // Set access token
-Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMjVmMzkzYS02MTM4LTQ2YTAtYjNhMy05ZmFhOWY5Y2Q5MDIiLCJpZCI6MjA5ODI3LCJpYXQiOjE3MTM1MDAyNjN9.SrQ5rn8K72P_luv7RePRsjLQOgA8QcpRIFdOCxUvG24';
+Cesium.Ion.defaultAccessToken = config.CESIUM_API_KEY;
 
 //Import weather.js to bitw script
 import { fetchWeatherData } from "./weather.js";
