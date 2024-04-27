@@ -75,6 +75,30 @@ viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
 viewer.clock.multiplier = 10;
 //viewer.clock.shouldAnimate = true;
 
+// TODO: use wind speed and wind direction to calculate next point in map
+// Loop x number of times using the next point to call the weather api again
+
+function getNextPoint() {
+  //let dist = windSpeed * timeStepInSeconds; // m/min
+  //let dir = current point + dist using angle for direction
+  
+  // var ellipsoid = Cesium.Ellipsoid.WGS84;
+  // var firstPos=Cesium.Cartesian3.fromRadians(position.longitude,position.latitude, position.height);
+  // var ENU = new Cesium.Matrix4();
+  // Cesium.Transforms.eastNorthUpToFixedFrame(firstPos,ellipsoid,ENU);
+  // var myx=vectorLengthMath.sin(degree180/Math.PI);
+  // var myy=vectorLengthMath.cos(degree180/Math.PI);
+  // var offset=new Cesium.Cartesian3(myx,myy,0);
+  // var finalPos = Cesium.Matrix4.multiplyByPoint(ENU, offset, new Cesium.Cartesian3());
+
+  let nextPoint = {
+    // long: ,
+    // lat: ,
+    // height: ,
+  }
+  return nextPoint;
+}
+
 // Create points (NOTE: should get from wind data and loop through points)
 // Must add parameters (array of points from the wind data. Refresh when pulling new data)
 function createPath() {
