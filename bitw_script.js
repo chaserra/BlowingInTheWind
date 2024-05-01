@@ -1,15 +1,14 @@
 // Import config.js
 import config from "./config.js";
+//Import weather.js to bitw script
+import { fetchWeatherData } from "./weather.js";
 
 // Set access token
 Cesium.Ion.defaultAccessToken = config.CESIUM_API_KEY;
 
-//Import weather.js to bitw script
-import { fetchWeatherData } from "./weather.js";
-
-//module lever variables to store wind data
-let windSpeed, windDirection;
-
+/*********************************
+ * SETUP
+ *********************************/
 // Initialise viewer
 const viewer = new Cesium.Viewer("cesiumContainer", {
   terrain: Cesium.Terrain.fromWorldTerrain(),
@@ -27,6 +26,12 @@ const cameraOffset = new Cesium.HeadingPitchRange(0.0, pitchAngle, 300.0);
 // Visualise buildings
 const buildingTileSet = await Cesium.createOsmBuildingsAsync();
 viewer.scene.primitives.add(buildingTileSet);
+
+/*********************************
+ * WIND API
+ *********************************/
+//module lever variables to store wind data
+let windSpeed, windDirection;
 
 //conversion to degrees from cartesian
 function cartesianToDegrees(cartesian) {
@@ -46,26 +51,21 @@ async function fetchAndStoreWind(latitude, longitude){
   windSpeed = weatherWind.windSpeed;
 }
 
-fetchAndStoreWind(uowscDegrees.latitude, uowscDegrees.longitude);
-
-// SAMPLE DATA. Change using wind data
-const pos1 = Cesium.Cartesian3.fromDegrees(175.3197, -37.78765, 100.0);
-const pos2 = Cesium.Cartesian3.fromDegrees(175.3157, -37.78455, 125.0);
-const pos3 = Cesium.Cartesian3.fromDegrees(175.3137, -37.78635, 150.0);
-const pos4 = Cesium.Cartesian3.fromDegrees(175.3123, -37.78675, 110.0);
-const pos5 = Cesium.Cartesian3.fromDegrees(175.3127, -37.78885, 100.0);
-const pos6 = uowscCartesian;
-const pos_array = [pos1, pos2, pos3, pos4, pos5, pos6];
+/*********************************
+ * PATHING
+ *********************************/
+// Storage for last point on map where wind data was obtained from
+var lastPointOnMap;
 
 // Setup clock
 // Time it takes to go to destination
-const timeStepInSeconds = 60;
+const timeStepInSeconds = 60*30;
 // Set startTime to current time
 let startTime = viewer.clock.currentTime;
 // Initialise nextTimeStep
 let nextTimeStep = startTime;
 // Set stopTime to 6 minutes after startTime
-let stopTime = Cesium.JulianDate.addSeconds(startTime, 360, new Cesium.JulianDate());
+let stopTime = Cesium.JulianDate.addSeconds(startTime, timeStepInSeconds * 5, new Cesium.JulianDate());
 // Set clock settings
 viewer.clock.startTime = startTime.clone();
 viewer.clock.stopTime = stopTime.clone();
@@ -75,45 +75,26 @@ viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
 viewer.clock.multiplier = 10;
 //viewer.clock.shouldAnimate = true;
 
-// TODO: use wind speed and wind direction to calculate next point in map
-// Loop x number of times using the next point to call the weather api again
-
-function getNextPoint() {
-  //let dist = windSpeed * timeStepInSeconds; // m/min
-  //let dir = current point + dist using angle for direction
-  
-  // var ellipsoid = Cesium.Ellipsoid.WGS84;
-  // var firstPos=Cesium.Cartesian3.fromRadians(position.longitude,position.latitude, position.height);
-  // var ENU = new Cesium.Matrix4();
-  // Cesium.Transforms.eastNorthUpToFixedFrame(firstPos,ellipsoid,ENU);
-  // var myx=vectorLengthMath.sin(degree180/Math.PI);
-  // var myy=vectorLengthMath.cos(degree180/Math.PI);
-  // var offset=new Cesium.Cartesian3(myx,myy,0);
-  // var finalPos = Cesium.Matrix4.multiplyByPoint(ENU, offset, new Cesium.Cartesian3());
-
-  let nextPoint = {
-    // long: ,
-    // lat: ,
-    // height: ,
-  }
-  return nextPoint;
-}
-
-// Create points (NOTE: should get from wind data and loop through points)
-// Must add parameters (array of points from the wind data. Refresh when pulling new data)
-function createPath() {
+// Create the path for the balloon
+async function createPath(balloon) {
   // Create SampledPositionProperty
   const positionProperty = new Cesium.SampledPositionProperty();
 
+  // TODO: Create random start points. Current is set at UOW SC
   // Set initial position at startTime
-  positionProperty.addSample(startTime, uowscCartesian);
+  lastPointOnMap = uowscCartesian;
+  positionProperty.addSample(startTime, lastPointOnMap);
 
   // Plot points on the map
-  for (let i = 0; i < pos_array.length; i++) {  
-    // Create sample position property (NOTE: Time should be obtained/calculated from wind data)
+  for (let i = 0; i < 5; i++) {  
+    // Calculate timestep
     const time = Cesium.JulianDate.addSeconds(nextTimeStep, timeStepInSeconds, new Cesium.JulianDate());
-    const position = pos_array[i];
-    positionProperty.addSample(time, position);
+    // Get wind data from last point to get the next point to plot
+    const thisPoint = await getNextPoint(lastPointOnMap);
+    // Change lastPoint to this current one
+    lastPointOnMap = thisPoint;
+    // Add to the path
+    positionProperty.addSample(time, thisPoint);
 
     // Increment time
     nextTimeStep = time;
@@ -125,17 +106,64 @@ function createPath() {
 
     // Create entity based on sample position
     viewer.entities.add({
-      position: position,
+      position: thisPoint,
       name: text,
       point: { pixelSize: 15, color: Cesium.Color.RED }
     });
   }
+
+  // Set balloon path
+  balloon.position = positionProperty;
+  // Orient balloon towards movement
+  balloon.orientation = new Cesium.VelocityOrientationProperty(positionProperty);
+  // Change interpolation mode to make path more curved
+  balloon.position.setInterpolationOptions({
+    interpolationDegree: 5,
+    interpolationAlgorithm:
+      Cesium.LagrangePolynomialApproximation,
+  });
+
   return positionProperty;
 }
 
-// Generate path for the balloon
-const flightPath = createPath();
+// Get next point using wind data
+async function getNextPoint(originPoint) {
+  // Wait for wind data
+  let originDegrees = cartesianToDegrees(originPoint);
+  // TODO: Change uowscDegrees into current position iteration's latitude and longitude
+  await fetchAndStoreWind(originDegrees.latitude, originDegrees.longitude);
+  // Convert wind direction to radians
+  let windDirRad = Cesium.Math.toRadians(windDirection);
+  // Calculate magnitude (distance)
+  let magnitude = windSpeed * timeStepInSeconds; // m/min
+  // Calculate x and y coordinates
+  // TODO: Change uowscCartesian to current position iteration's x and y
+  let nextX = originPoint.x + Math.cos(windDirRad) * magnitude;
+  let nextY = originPoint.y + Math.sin(windDirRad) * magnitude;
+  // Make cartesian point on Cesium Map
+  // TODO: Change uowscCartesian to current position iteration's z
+  let nextPointCartesian = new Cesium.Cartesian3(nextX, nextY, originPoint.z);
+  // Convert into cartographic
+  let nextPointCartographic = Cesium.Cartographic.fromCartesian(nextPointCartesian);
+  // Convert longitude and latitude to degrees
+  let longitude = Cesium.Math.toDegrees(nextPointCartographic.longitude);
+  let latitude = Cesium.Math.toDegrees(nextPointCartographic.latitude);
+  // Create nextPoint
+  let nextPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000); // Note: Hard-coded altitude
 
+  console.log("==============================================================");
+  console.log("Wind Speed: " + windSpeed);
+  console.log("Wind Direction(Degrees): " + windDirection);
+  console.log("Magnitude: " + magnitude);
+  console.log("Next point coords: (" + longitude + ", " + latitude + ")");
+  console.log("==============================================================");
+
+  return nextPoint;
+}
+
+/*********************************
+ * ENTITIES
+ *********************************/
 // Create entity
 const targetEntity = viewer.entities.add({
   name: "The hot air balloon",
@@ -147,9 +175,7 @@ const targetEntity = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: flightPath, 
-  // Automatically compute orientation based on position movement.
-  orientation: new Cesium.VelocityOrientationProperty(flightPath),
+  position: uowscCartesian, // Change this to random position on map
   // Placeholder entity visuals
   ellipsoid: {
     radii: new Cesium.Cartesian3(12.0, 12.0, 12.0),
@@ -166,13 +192,6 @@ const targetEntity = viewer.entities.add({
     }),
     width: 10,
   },
-});
-
-// Change interpolation mode to make path more curved
-targetEntity.position.setInterpolationOptions({
-  interpolationDegree: 5,
-  interpolationAlgorithm:
-    Cesium.LagrangePolynomialApproximation,
 });
 
 //Set up chase camera
@@ -195,6 +214,9 @@ function getModelMatrix(targetEntity, time, result) {
   return result;
 }
 
+// Generate path for the balloon
+createPath(targetEntity);
+
 // Fly to entity (Viewer)
 // viewer.flyTo(targetEntity, {
 //   offset: cameraOffset,
@@ -203,7 +225,9 @@ function getModelMatrix(targetEntity, time, result) {
 // Quick camera focus to target entity
 viewer.zoomTo(targetEntity, cameraOffset);
 
-/* *****RUNTIME CODE***** */
+/*********************************
+ * RUNTIME CODE
+ *********************************/
 // Tick function
 viewer.clock.onTick.addEventListener(function(clock) {
   // If clock is playing
