@@ -1,1 +1,2 @@
-All 3D graphics for 'Blowing in the Wind' are pushed here
+# BlowingInTheWind
+COMPX241 Smoke and Mirrors Project - A hot air balloon simulator using real world weather and mapping data
