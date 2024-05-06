@@ -54,39 +54,45 @@ async function fetchAndStoreWind(latitude, longitude){
 /*********************************
  * PATHING
  *********************************/
+// One minute
+const minute = 60;
 // Storage for last point on map where wind data was obtained from
 var lastPointOnMap;
 
-// Setup clock
-// Time it takes to go to destination
-const timeStepInSeconds = 60*30;
+/* INITIAL VALUES ON LOAD */
+// Set initial position at startTime
+lastPointOnMap = uowscCartesian;
 // Set startTime to current time
 let startTime = viewer.clock.currentTime;
 // Initialise nextTimeStep
 let nextTimeStep = startTime;
-// Set stopTime to 6 minutes after startTime
-let stopTime = Cesium.JulianDate.addSeconds(startTime, timeStepInSeconds * 5, new Cesium.JulianDate());
 // Set clock settings
 viewer.clock.startTime = startTime.clone();
-viewer.clock.stopTime = stopTime.clone();
 viewer.clock.currentTime = startTime.clone();
-viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
+//viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
 // Start animating at x10 speed
 viewer.clock.multiplier = 10;
 //viewer.clock.shouldAnimate = true;
 
-// Create the path for the balloon
-async function createPath(balloon) {
-  // Create SampledPositionProperty
+/* CREATE PATH */
+// Create the path for the target object
+async function createPath(targetObject, numOfPoints, timeToNextPoint) {
+  // Calculate timeStep
+  let timeStep = minute * timeToNextPoint;
+  // Set new stopping point
+  let stop = Cesium.JulianDate.addSeconds(startTime, timeStep * numOfPoints, new Cesium.JulianDate());
+  // Update viewer's clock to extend animations
+  viewer.clock.stopTime = stop.clone();
+
+  // Create SampledPositionProperty (this is a container for the list of points on the map)
   const positionProperty = new Cesium.SampledPositionProperty();
 
   // TODO: Create random start points. Current is set at UOW SC
-  // Set initial position at startTime
-  lastPointOnMap = uowscCartesian;
-  positionProperty.addSample(startTime, lastPointOnMap);
+  // Add the last point on the map to the list of points
+  positionProperty.addSample(startTime, lastPointOnMap); // We might need to remove this eventually as this might bug out if 2 points are on the exact same coordinates
 
   // Plot points on the map
-  for (let i = 0; i < 5; i++) {  
+  for (let i = 0; i < numPoints; i++) {  
     // Calculate timestep
     const time = Cesium.JulianDate.addSeconds(nextTimeStep, timeStepInSeconds, new Cesium.JulianDate());
     // Get wind data from last point to get the next point to plot
@@ -112,12 +118,19 @@ async function createPath(balloon) {
     });
   }
 
-  // Set balloon path
-  balloon.position = positionProperty;
-  // Orient balloon towards movement
-  balloon.orientation = new Cesium.VelocityOrientationProperty(positionProperty);
+  // Set targetObject availability
+  targetObject.availability = new Cesium.TimeIntervalCollection([
+                                new Cesium.TimeInterval({
+                                  start: viewer.clock.currentTime,
+                                  stop: stop
+                                }),
+                              ]);
+  // Set targetObject path
+  targetObject.position = positionProperty;
+  // Orient targetObject towards movement
+  targetObject.orientation = new Cesium.VelocityOrientationProperty(positionProperty);
   // Change interpolation mode to make path more curved
-  balloon.position.setInterpolationOptions({
+  targetObject.position.setInterpolationOptions({
     interpolationDegree: 5,
     interpolationAlgorithm:
       Cesium.LagrangePolynomialApproximation,
@@ -126,6 +139,7 @@ async function createPath(balloon) {
   return positionProperty;
 }
 
+/* GET NEXT POINT */
 // Get next point using wind data
 async function getNextPoint(originPoint) {
   // Wait for wind data
@@ -165,13 +179,13 @@ async function getNextPoint(originPoint) {
  * ENTITIES
  *********************************/
 // Create entity
-const targetEntity = viewer.entities.add({
+const balloon = viewer.entities.add({
   name: "The hot air balloon",
   // Move entity via simulation time
   availability: new Cesium.TimeIntervalCollection([
     new Cesium.TimeInterval({
       start: startTime,
-      stop: stopTime
+      stop: startTime
     }),
   ]),
   // Use path created by the function
@@ -200,12 +214,12 @@ var positionScratch = new Cesium.Cartesian3();
 var orientationScratch = new Cesium.Quaternion();
 var scratch = new Cesium.Matrix4();
 
-function getModelMatrix(targetEntity, time, result) {
-  var position = Cesium.Property.getValueOrUndefined(targetEntity.position, time, positionScratch);
+function getModelMatrix(balloon, time, result) {
+  var position = Cesium.Property.getValueOrUndefined(balloon.position, time, positionScratch);
   if (!Cesium.defined(position)) {
     return undefined;
   }
-  var orientation = Cesium.Property.getValueOrUndefined(targetEntity.orientation, time, orientationScratch);
+  var orientation = Cesium.Property.getValueOrUndefined(balloon.orientation, time, orientationScratch);
   if (!Cesium.defined(orientation)) {
     result = Cesium.Transforms.eastNorthUpToFixedFrame(position, undefined, result);
   } else {
@@ -214,16 +228,21 @@ function getModelMatrix(targetEntity, time, result) {
   return result;
 }
 
+// How many points to put on the map
+let numPoints = 5;
+// Set up clock
+// Time it takes to go to destination
+let timeStepInSeconds = minute * 30;
 // Generate path for the balloon
-createPath(targetEntity);
+createPath(balloon, numPoints, timeStepInSeconds);
 
 // Fly to entity (Viewer)
-// viewer.flyTo(targetEntity, {
+// viewer.flyTo(balloon, {
 //   offset: cameraOffset,
 // });
 
 // Quick camera focus to target entity
-viewer.zoomTo(targetEntity, cameraOffset);
+viewer.zoomTo(balloon, cameraOffset);
 
 /*********************************
  * RUNTIME CODE
@@ -232,9 +251,12 @@ viewer.zoomTo(targetEntity, cameraOffset);
 viewer.clock.onTick.addEventListener(function(clock) {
   // If clock is playing
   if(clock.shouldAnimate) {
-    // Change camera angle to 3rd person view (chase cam)
-    getModelMatrix(targetEntity, viewer.clock.currentTime, scratch);
-    cam.lookAtTransform(scratch, new Cesium.Cartesian3(-250, 0, 70));
+    // Change camera angle to 3rd person view (chase cam, no camera controls)
+    //getModelMatrix(balloon, viewer.clock.currentTime, scratch);
+    //cam.lookAtTransform(scratch, new Cesium.Cartesian3(-250, 0, 70));
+
+    // Track balloon (with camera controls)
+    viewer.trackedEntity = balloon;
   }
 });
 
@@ -244,6 +266,6 @@ Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel,
   // If paused
   if (!value) {
     // Revert camera back to normal
-    viewer.zoomTo(targetEntity, cameraOffset);
+    viewer.zoomTo(balloon, cameraOffset);
   }
 });
