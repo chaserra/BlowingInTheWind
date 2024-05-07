@@ -57,11 +57,12 @@ async function fetchAndStoreWind(latitude, longitude){
 // One minute
 const minute = 60;
 // Storage for last point on map where wind data was obtained from
-var lastPointOnMap;
+// TODO: Make container of last point for each entity
+//var lastPointOnMap;
 
 /* INITIAL VALUES ON LOAD */
 // Set initial position at startTime
-lastPointOnMap = uowscCartesian;
+//lastPointOnMap = uowscCartesian;
 // Set startTime to current time
 let startTime = viewer.clock.currentTime;
 // Initialise nextTimeStep
@@ -76,7 +77,9 @@ viewer.clock.multiplier = 10;
 
 /* CREATE PATH */
 // Create the path for the target object
-async function createPath(targetObject, numOfPoints, timeToNextPoint) {
+async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) {
+  // Storage for last point on map where wind data was obtained from
+  var lastPointOnMap = startPos;
   // Calculate timeStep
   let timeStep = minute * timeToNextPoint;
   // Set new stopping point
@@ -233,8 +236,11 @@ let numPoints = 5;
 // Set up clock
 // Time it takes to go to destination
 let timeStepInSeconds = minute * 30;
+// DEBUG SAMPLE CODE (Change the long and lat values. Only change the thousands decimal if you want it close to UoW)
+// DEBUG NOTE: use yourPosition as your entity's starting location and use for the 2nd arg in createPath
+//var yourPosition = Cesium.Cartesian3.fromDegrees(175.3172, -37.78795, 100.0);
 // Generate path for the balloon
-createPath(balloon, numPoints, timeStepInSeconds);
+createPath(balloon, uowscCartesian, numPoints, timeStepInSeconds);
 
 // Fly to entity (Viewer)
 // viewer.flyTo(balloon, {
