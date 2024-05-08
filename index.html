@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <title>Balloon Render On Cesium</title>
+  <link rel="stylesheet" type="text/css" href="./style.css" />
   <!-- Include the CesiumJS JavaScript and CSS files -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Cesium.js"></script>  
   <script type="module" src="bitw_script.js"></script>
+  <script type="module" src="/balloon.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <style>
     body {
@@ -16,6 +19,13 @@
   </style>
 </head>
 <body>
+
+  <div id ="container">
+    <div id="cesiumContainer"></div>
+    <div id="balloonContainer"></div>
+  </div>
+  
+
   <div class = "center">
     <h1>Blowing in the Wind</h1>
   </div>
@@ -27,6 +37,7 @@
   </div>
 
   <div id="cesiumContainer"></div>
+
   
 </body>
 </html>
