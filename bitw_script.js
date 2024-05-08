@@ -178,6 +178,47 @@ async function getNextPoint(originPoint) {
   return nextPoint;
 }
 
+function getNearbyLocation(cityCartesianPoint){
+  const EARTH_R = 6371 * Math.pow(10, 3);
+  const MAX_R = 3000; // 3000m 
+
+  let cityCartographicPoint = Cesium.Cartographic.fromCartesian(cityCartesianPoint);
+  let city_lon_deg = Cesium.Math.toDegrees(cityCartographicPoint.longitude);
+  let city_lat_deg = Cesium.Math.toDegrees(cityCartographicPoint.latitude);
+
+  let lonOffset = Math.floor(Math.random() - 0.5) * 0.02;
+  let latOffset = Math.floor(Math.random() - 0.5) * 0.02;
+
+  let ran_lon_deg = city_lon_deg + lonOffset;
+  let ran_lat_deg = city_lat_deg + latOffset;
+
+  let lat1 = city_lat_deg * (Math.PI / 180);
+  let lat2 = ran_lat_deg * (Math.PI / 180);
+  let lon1 = city_lon_deg;
+  let lon2 = ran_lon_deg;
+
+  let changeLat = (lat2 - lat1) * Math.PI / 180;
+  let changeLon = (lon2 - lon1) * Math.PI / 180;
+
+  let a = Math.sin(changeLat / 2) * Math.sin(changeLat / 2) +
+          Math.cos(lat1) * Math.cos(lat2) *
+          Math.sin(changeLon / 2) * Math.sin(changeLon / 2); 
+  let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  let distance = EARTH_R * c;
+
+  console.log(distance);
+
+  if (distance < MAX_R){
+    console.log("True");
+    return true;
+  } else {
+    console.log("False");
+    return false;
+  }
+}
+
+getNearbyLocation(uowscCartesian);
+
 /*********************************
  * ENTITIES
  *********************************/
