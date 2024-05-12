@@ -53,15 +53,15 @@ function cartesianToDegrees(cartesian) {
   return {longitude, latitude};
 }
 // UoW Student Centre Coordinates
-const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 100.0);
+const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 300.0);
 const uowscDegrees = cartesianToDegrees(uowscCartesian);
 
 let citiesArray = [
-  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 100.0)},
-  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 100.0)},
-  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(48.864716, 2.349014, 100.0)},
-  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 100.0)},
-  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 100.0)},
+  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 300.0)},
+  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 300.0)},
+  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(48.864716, 2.349014, 300.0)},
+  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 300.0)},
+  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 300.0)},
 ] 
 let randomPointsArray = [];
 
@@ -227,7 +227,7 @@ async function getNextPoint(originPoint) {
   let longitude = Cesium.Math.toDegrees(nextPointCartographic.longitude);
   let latitude = Cesium.Math.toDegrees(nextPointCartographic.latitude);
   // Create nextPoint
-  let nextPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000); // Note: Hard-coded altitude
+  let nextPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude, 300.0); // Note: Hard-coded altitude
 
   console.log("==============================================================");
   console.log("Wind Speed: " + windSpeed);
@@ -275,7 +275,7 @@ function getNearbyLocation(cityCartesianPoint){
   }
 }
 
-getNearbyLocation(uowscCartesian);
+getNearbyLocation(citiesArray[0].coordinates);
 
 /*********************************
  * ENTITIES
@@ -291,7 +291,7 @@ const balloon = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: uowscCartesian, // Change this to random position on map
+  position: citiesArray[0].coordinates, // Change this to random position on map
   // Placeholder entity visuals
   ellipsoid: {
     radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
@@ -338,7 +338,7 @@ let timeStepInSeconds = minute * 30;
 //var yourPosition = Cesium.Cartesian3.fromDegrees(175.3172, -37.78795, 100.0);
 
 // Generate path for the balloon
-createPath(balloon, uowscCartesian, numPoints, timeStepInSeconds);
+createPath(balloon, citiesArray[0].coordinates, numPoints, timeStepInSeconds);
 
 // Fly to entity (Viewer)
 // viewer.flyTo(balloon, {
