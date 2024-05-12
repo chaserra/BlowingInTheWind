@@ -22,10 +22,22 @@ const cam = viewer.camera;
 // Set default camera pitch
 const pitchAngle = Cesium.Math.toRadians(-15.0);
 const cameraOffset = new Cesium.HeadingPitchRange(0.0, pitchAngle, 300.0);
+viewer.scene.screenSpaceCameraController.enableZoom = false;
 
-// Visualise buildings
-const buildingTileSet = await Cesium.createOsmBuildingsAsync();
-viewer.scene.primitives.add(buildingTileSet);
+/*********************************
+ * VISUALISE BUILDINGS
+ *********************************/
+// Cesium's Default OSM Buildings
+//const buildingTileSet = await Cesium.createOsmBuildingsAsync();
+//viewer.scene.primitives.add(buildingTileSet);
+
+// Google Map's Photorealistic 3d Tileset
+try {
+  const buildingTileSet = await Cesium.createGooglePhotorealistic3DTileset();
+  viewer.scene.primitives.add(buildingTileSet);
+} catch (error) {
+  console.log(`Failed to load tileset: ${error}`);
+}
 
 /*********************************
  * WIND API
@@ -122,8 +134,8 @@ let nextTimeStep = startTime;
 viewer.clock.startTime = startTime.clone();
 viewer.clock.currentTime = startTime.clone();
 //viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
-// Start animating at x10 speed
-viewer.clock.multiplier = 10;
+// Start animating at x1 speed
+viewer.clock.multiplier = 1;
 //viewer.clock.shouldAnimate = true;
 
 /* CREATE PATH */
@@ -205,11 +217,9 @@ async function getNextPoint(originPoint) {
   // Calculate magnitude (distance)
   let magnitude = windSpeed * timeStepInSeconds; // m/min
   // Calculate x and y coordinates
-  // TODO: Change uowscCartesian to current position iteration's x and y
   let nextX = originPoint.x + Math.cos(windDirRad) * magnitude;
   let nextY = originPoint.y + Math.sin(windDirRad) * magnitude;
   // Make cartesian point on Cesium Map
-  // TODO: Change uowscCartesian to current position iteration's z
   let nextPointCartesian = new Cesium.Cartesian3(nextX, nextY, originPoint.z);
   // Convert into cartographic
   let nextPointCartographic = Cesium.Cartographic.fromCartesian(nextPointCartesian);
@@ -284,10 +294,8 @@ const balloon = viewer.entities.add({
   position: uowscCartesian, // Change this to random position on map
   // Placeholder entity visuals
   ellipsoid: {
-    radii: new Cesium.Cartesian3(12.0, 12.0, 12.0),
-    material: Cesium.Color.RED.withAlpha(0.5),
-    outline: true,
-    outlineColor: Cesium.Color.BLACK,
+    radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
+    material: Cesium.Color.RED.withAlpha(0),
   },
   // Show path of hot air balloon
   path: {
@@ -328,6 +336,7 @@ let timeStepInSeconds = minute * 30;
 // DEBUG SAMPLE CODE (Change the long and lat values. Only change the thousands decimal if you want it close to UoW)
 // DEBUG NOTE: use yourPosition as your entity's starting location and use for the 2nd arg in createPath
 //var yourPosition = Cesium.Cartesian3.fromDegrees(175.3172, -37.78795, 100.0);
+
 // Generate path for the balloon
 createPath(balloon, uowscCartesian, numPoints, timeStepInSeconds);
 
