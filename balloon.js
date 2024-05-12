@@ -58,13 +58,76 @@ scene.add(ambientLight);
 
 //Render the scene
 function animate() {
-    requestAnimationFrame(animate);
-  //Here we could add some code to update the scene, adding some automatic movement
-    if(object) object.rotation.y += 0.005;
-    renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+  if(object) {
+    //animateLanding(7);
+    //animateRightTilt();
+    //animateLeftTilt();
+    
+  }
+  renderer.render(scene, camera);
 }
 
+function animateLeftTilt(){
+  let new_x_pos = 0;
+  let new_y_pos = -9;
+  let new_z_pos = 3;
+  let tiltingSpeed = 0.0125;
+  
+  let objAngle = 0.2;
+  let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+  let objAxis = new THREE.Vector3(0, 0, 0.03);
 
+  // code for making the balloon continue rotating
+  //object.rotation.y += tiltingSpeed;
+  rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+}
+
+function animateRightTilt(){
+  let new_x_pos = 0;
+  let new_y_pos = -9;
+  let new_z_pos = 3;
+  let tiltingSpeed = 0.0125;
+  
+  let objAngle = 0.2;
+  let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+  let objAxis = new THREE.Vector3(0, 0, -0.03);
+
+  // code for making the balloon continue rotating
+  //object.rotation.y += tiltingSpeed;
+  rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+}
+
+function animateLanding(newXPos){
+  let new_x_pos = newXPos;
+  let new_y_pos = -9;
+  let new_z_pos = 3;
+  
+  let objAngle = 0.25;
+  let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+  let objAxis = new THREE.Vector3(0, 0, -0.03);
+
+  rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+}
+
+// obj - object (THREE.Object3D or derived)
+// point - point of rotation (THREE.Vector3)
+// axis - the axis of rotation (normalized THREE.Vector3)
+// theta - radian value of rotation
+// pointIsWorld - boolean indicating the point is in world coordinates (default = false)
+function rotateAboutPivot(obj, point, axis, theta, pointIsWorld = false){
+  if(pointIsWorld){
+      obj.parent.localToWorld(obj.position); // compensate for world coordinate
+  }
+  obj.position.sub(point); // remove the offset
+  obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+  obj.position.add(point); // re-add the offset
+
+  if(pointIsWorld){
+      obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+  }
+  obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+}
 
 //Start the 3D rendering
 animate();

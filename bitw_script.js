@@ -44,6 +44,57 @@ function cartesianToDegrees(cartesian) {
 const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 100.0);
 const uowscDegrees = cartesianToDegrees(uowscCartesian);
 
+let citiesArray = [
+  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 100.0)},
+  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 100.0)},
+  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(48.864716, 2.349014, 100.0)},
+  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 100.0)},
+  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 100.0)},
+] 
+let randomPointsArray = [];
+
+function shuffleArray(array){
+  let currentIndex = array.length;
+  while(currentIndex != 0){
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+}
+
+function generateRandomPoints(){
+  shuffleArray(citiesArray)
+  for(let i = 0; i < citiesArray.length; i++){
+    let shuffledName = citiesArray[i].cityName;
+    let randomPoint = null;
+
+    while(randomPoint == null){
+      randomPoint = getNearbyLocation(citiesArray[i].coordinates);
+    }
+
+    let randomPointObj = {cityName: shuffledName, coordinates: randomPoint}
+    randomPointsArray.push(randomPointObj);
+
+    viewer.entities.add({
+      position: citiesArray[i].coordinates,
+      name: citiesArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.BLUE }
+    });
+  }
+  for(let i = 0; i < randomPointsArray.length; i++){
+    viewer.entities.add({
+      position: randomPointsArray[i].coordinates,
+      name: randomPointsArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.GREEN }
+    });
+  }
+}
+
+generateRandomPoints();
+console.log(citiesArray);
+console.log(randomPointsArray);
+
 //gets the wind data and stores it to the module level variables 
 async function fetchAndStoreWind(latitude, longitude){
   const weatherWind=  await fetchWeatherData(latitude, longitude);
@@ -207,13 +258,10 @@ function getNearbyLocation(cityCartesianPoint){
   let distance = EARTH_R * c;
 
   console.log(distance);
-
-  if (distance < MAX_R){
-    console.log("True");
-    return true;
+  if (distance < MAX_R && distance > 0){
+    return Cesium.Cartesian3.fromDegrees(ran_lon_deg, ran_lat_deg, 1000);
   } else {
-    console.log("False");
-    return false;
+    return null;
   }
 }
 
