@@ -12,3 +12,185 @@
     position: absolute;
     pointer-events: none;
 }
+
+@font-face {
+    font-family: Modak;
+    src: url(fonts/Modak-Regular.ttf);
+}
+@font-face {
+    font-family: Sniglet;
+    src: url(fonts/Sniglet-ExtraBold.ttf);
+}
+@font-face {
+    font-family: Titan;
+    src: url(fonts/TitanOne-Regular.ttf);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #81b1e5;
+}
+
+.container span{
+    position: fixed;
+    animation: animate 2s linear infinite;
+    z-index: 2;
+}
+.container span i{
+    color:#ffff;
+    font-size:10 px;
+}
+.container span:nth-child(1){
+    left:60px;
+    animation-delay:0.6s;
+    top: 5%;
+}
+.container span:nth-child(2){
+    left: 10%;
+    animation-delay:2;
+    top:40%;
+}
+.container span:nth-child(3){
+    left:20%;
+    animation-delay:5s;
+    top:15%;
+}
+.container span:nth-child(4){
+    left:26%;
+    animation-delay:4s;
+    top: 67%;
+}
+.container span:nth-child(5){
+    left:40%;
+    animation-delay:0.5s;
+    top: 85%;
+}.container span:nth-child(6){
+    left:50%;
+    animation-delay:5s;
+    top: 20%;
+}.container span:nth-child(7){
+    left:73%;
+    animation-delay:6s;
+    top: 65%;
+}.container span:nth-child(8){
+    left:70%;
+    animation-delay:3.5s;
+    top: 12s;
+}.container span:nth-child(9){
+    left:80%;
+    animation-delay:9s;
+    top: 75%;
+}
+.container span:nth-child(10){
+    left:95%;
+    animation-delay:3s;
+    top: 14%;
+}
+.container span:nth-child(11){
+    left:17%;
+    animation-delay:.3s;
+    top: 50%;
+}
+.container span:nth-child(12){
+    left:10%;
+    animation-delay:.9s;
+    top: 30%;
+}
+.container span:nth-child(13){
+    left:95%;
+    animation-delay:.9s;
+    top: 60%;
+}.container span:nth-child(14){
+    left:74%;
+    animation-delay:.9s;
+    top: 40%;
+}.container span:nth-child(15){
+    left:67%;
+    animation-delay:.9s;
+    top: 45%;
+}
+
+@keyframes animate{
+    0%{
+        opacity:0;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        opacity:0;
+    }
+}
+
+
+.container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+img {
+    position: absolute;
+    top: 5%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* To cover the entire container */
+}
+
+#title {
+    position: absolute;
+    top: 10%; /* Adjust vertical positioning if needed */
+    left: 50%;
+    letter-spacing: 5px;
+    transform: translate(-50%, -50%);
+    font-family: Titan, Modak, Sniglet;
+    text-align: center;
+    color: #e46516;
+    z-index: 1;
+    width: 80%; /* Adjust the width as needed */
+    max-width: 600px; /* Optional: Set a maximum width to prevent it from becoming too wide on larger screens */
+    margin: 0 auto; /* Center the title horizontally */
+    text-shadow: -3px 0 rgb(125, 55, 1), 0 3px rgb(125, 55, 1), 3px 0 rgb(125, 55, 1), 0 -3px rgb(125, 55, 1);
+
+}
+#title h1, h3{
+    font-size:60px;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+#title h2{
+    margin-top: 0;
+    margin-bottom:0;
+}
+
+.button-container {
+    position: absolute;
+    top: 94%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1; /* To ensure the button appears above the image */
+}
+.button {
+    display: inline-block;
+    padding: 30px; /* Adjust button size as needed */
+    font-size: 30px; /* Adjust button font size as needed */
+    font-family: Sniglet, Modak, Titan;
+    background-color: #e46516;
+    color: white; /* Set button text color */
+    text-decoration: none; /* Remove default link underline */
+    border: none; /* Remove button border */
+    border-radius: 7px; /* Apply button border radius */
+    width: auto; /* Set button width */
+    height: auto; /* Set button height */
+    text-shadow: -3px 0 rgb(125, 55, 1), 0 3px rgb(125, 55, 1), 3px 0 rgb(125, 55, 1), 0 -3px rgb(125, 55, 1);
+
+}
+
+.button:hover {
+    background-color: #b14d0e; /* Change button background color on hover */
+}

@@ -2,15 +2,18 @@
 import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
 // To allow for importing the .gltf file
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+
 //Create a Three.JS Scene
 const scene = new THREE.Scene();
 //create a new camera with positions and angles
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
 //Keep the 3D object on a global variable so we can access it later
 let object;
 
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
+
 //Load the file
 loader.load(
   '/Balloon/scene.gltf',
@@ -18,10 +21,8 @@ loader.load(
     //If the file is loaded, add it to the scene
     object = gltf.scene;
     scene.add(object);
-
     object.position.set(0, -9, 3);
     object.rotation.x = 0.55;
-
   },
   function (xhr) {
     //While it is loading, log the progress
@@ -55,7 +56,6 @@ scene.add(ambientLight);
 //Render the scene
 function animate() {
   requestAnimationFrame(animate);
-
   //Here we could add some code to update the scene, adding some automatic movement
   if(object) {
     //animateLanding(7);
