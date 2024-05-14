@@ -68,6 +68,22 @@ let citiesArray = [
   { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(2.349014, 48.864716, 300.0)},
   { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 300.0)},
   { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 300.0)},
+  { cityName: "Hamilton", coordinates: Cesium.Cartesian3.fromDegrees(175.269363, -37.781528, 300.0)},
+  { cityName: "Toronto", coordinates: Cesium.Cartesian3.fromDegrees(-79.384293, 43.653908, 300.0)},
+  { cityName: "Sydney", coordinates: Cesium.Cartesian3.fromDegrees(151.209900, -33.865143, 300.0)},
+  { cityName: "San Francisco", coordinates: Cesium.Cartesian3.fromDegrees(-122.431297, 37.773972, 300.0)},
+  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-75.000000, 43.000000, 300.0)},
+  { cityName: "Seoul", coordinates: Cesium.Cartesian3.fromDegrees(127.024612, 37.532600, 300.0)},
+  { cityName: "New Delhi", coordinates: Cesium.Cartesian3.fromDegrees(77.216721, 28.644800, 300.0)},
+  { cityName: "Barcelona", coordinates: Cesium.Cartesian3.fromDegrees(2.154007, 41.390205, 300.0)},
+  { cityName: "Athens", coordinates: Cesium.Cartesian3.fromDegrees(23.727539, 37.983810, 300.0)},
+  { cityName: "Budapest", coordinates: Cesium.Cartesian3.fromDegrees(19.040236, 47.497913, 300.0)},
+  { cityName: "Moscow", coordinates: Cesium.Cartesian3.fromDegrees(37.618423, 55.751244, 300.0)},
+  //{ cityName: "Mexico City", coordinates: Cesium.Cartesian3.fromDegrees(-99.133209, 19.432608, 300.0)},
+  //{ cityName: "Sao Paulo", coordinates: Cesium.Cartesian3.fromDegrees(-46.636111, -23.547573, 300.0)},
+  { cityName: "Cairo", coordinates: Cesium.Cartesian3.fromDegrees(31.233334, 30.033333, 300.0)},
+  { cityName: "Copenhagen", coordinates: Cesium.Cartesian3.fromDegrees(12.568337, 55.676098, 300.0)},
+  { cityName: "London", coordinates: Cesium.Cartesian3.fromDegrees(-0.118092, 51.509865, 300.0)},
 ] 
 
 // Array of a random point around different cities
@@ -262,7 +278,8 @@ function nextCity() {
 
   // Create wind path for next city in the list. Spawn balloon on that location.
   createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
-  
+  console.log(randomPointsArray[currentCityIndex].cityName);
+
   // Increment city index
   currentCityIndex++;
   // Loop back if reached last city
@@ -272,7 +289,6 @@ function nextCity() {
 }
 
 // Finds a location near a city's centre coordinate
-// TODO: I don't think this is working properly. Balloon spawns on the same location most of the time.
 function getNearbyLocation(cityCartesianPoint){
   const EARTH_R = 6371 * Math.pow(10, 3);
   const MAX_R = 10000; // 10000m 
@@ -323,7 +339,7 @@ balloon = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: randomPointsArray[0].coordinates, // Change this to random position on map
+  position: randomPointsArray[currentCityIndex].coordinates, 
   // Placeholder entity visuals
   ellipsoid: {
     radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
