@@ -261,7 +261,7 @@ function nextCity() {
   viewer.clock.currentTime = startTime.clone();
 
   // Create wind path for next city in the list. Spawn balloon on that location.
-  createPath(balloon, citiesArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
+  createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
   
   // Increment city index
   currentCityIndex++;
@@ -275,14 +275,14 @@ function nextCity() {
 // TODO: I don't think this is working properly. Balloon spawns on the same location most of the time.
 function getNearbyLocation(cityCartesianPoint){
   const EARTH_R = 6371 * Math.pow(10, 3);
-  const MAX_R = 5000; // 5000m 
+  const MAX_R = 10000; // 10000m 
 
   let cityCartographicPoint = Cesium.Cartographic.fromCartesian(cityCartesianPoint);
   let city_lon_deg = Cesium.Math.toDegrees(cityCartographicPoint.longitude);
   let city_lat_deg = Cesium.Math.toDegrees(cityCartographicPoint.latitude);
 
-  let lonOffset = Math.floor(Math.random() - 0.5) * 0.02;
-  let latOffset = Math.floor(Math.random() - 0.5) * 0.02;
+  let lonOffset = Math.floor(Math.random() - 0.5) * 0.03;
+  let latOffset = Math.floor(Math.random() - 0.5) * 0.03;
 
   let ran_lon_deg = city_lon_deg + lonOffset;
   let ran_lat_deg = city_lat_deg + latOffset;
@@ -303,7 +303,7 @@ function getNearbyLocation(cityCartesianPoint){
 
   console.log(distance);
   if (distance < MAX_R && distance > 0){
-    return Cesium.Cartesian3.fromDegrees(ran_lon_deg, ran_lat_deg, 1000);
+    return Cesium.Cartesian3.fromDegrees(ran_lon_deg, ran_lat_deg, 300);
   } else {
     return null;
   }
@@ -323,7 +323,7 @@ balloon = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: citiesArray[0].coordinates, // Change this to random position on map
+  position: randomPointsArray[0].coordinates, // Change this to random position on map
   // Placeholder entity visuals
   ellipsoid: {
     radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
