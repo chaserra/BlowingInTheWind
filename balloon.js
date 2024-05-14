@@ -63,7 +63,7 @@ function animate() {
     //animateLanding(7);
     //animateRightTilt();
     //animateLeftTilt();
-    
+    object.rotation.y += 0.005;
   }
   renderer.render(scene, camera);
 }
