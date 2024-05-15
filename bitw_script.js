@@ -22,10 +22,26 @@ const cam = viewer.camera;
 // Set default camera pitch
 const pitchAngle = Cesium.Math.toRadians(-15.0);
 const cameraOffset = new Cesium.HeadingPitchRange(0.0, pitchAngle, 300.0);
+viewer.scene.screenSpaceCameraController.enableZoom = false;
 
-// Visualise buildings
-const buildingTileSet = await Cesium.createOsmBuildingsAsync();
-viewer.scene.primitives.add(buildingTileSet);
+const nextCityButton = document.getElementById("next-city");
+
+var balloon;
+
+/*********************************
+ * VISUALISE BUILDINGS
+ *********************************/
+// Cesium's Default OSM Buildings
+//const buildingTileSet = await Cesium.createOsmBuildingsAsync();
+//viewer.scene.primitives.add(buildingTileSet);
+
+// Google Map's Photorealistic 3d Tileset
+try {
+  const buildingTileSet = await Cesium.createGooglePhotorealistic3DTileset();
+  viewer.scene.primitives.add(buildingTileSet);
+} catch (error) {
+  console.log(`Failed to load tileset: ${error}`);
+}
 
 /*********************************
  * WIND API
@@ -41,8 +57,83 @@ function cartesianToDegrees(cartesian) {
   return {longitude, latitude};
 }
 // UoW Student Centre Coordinates
-const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 100.0);
-const uowscDegrees = cartesianToDegrees(uowscCartesian);
+const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 300.0);
+
+// Index iterator
+var currentCityIndex = 0;
+// Array of cities
+let citiesArray = [
+  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 300.0)},
+  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 300.0)},
+  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(2.349014, 48.864716, 300.0)},
+  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 300.0)},
+  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 300.0)},
+  { cityName: "Hamilton", coordinates: Cesium.Cartesian3.fromDegrees(175.269363, -37.781528, 300.0)},
+  { cityName: "Toronto", coordinates: Cesium.Cartesian3.fromDegrees(-79.384293, 43.653908, 300.0)},
+  { cityName: "Sydney", coordinates: Cesium.Cartesian3.fromDegrees(151.209900, -33.865143, 300.0)},
+  { cityName: "San Francisco", coordinates: Cesium.Cartesian3.fromDegrees(-122.431297, 37.773972, 300.0)},
+  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-75.000000, 43.000000, 300.0)},
+  { cityName: "Seoul", coordinates: Cesium.Cartesian3.fromDegrees(127.024612, 37.532600, 300.0)},
+  { cityName: "New Delhi", coordinates: Cesium.Cartesian3.fromDegrees(77.216721, 28.644800, 300.0)},
+  { cityName: "Barcelona", coordinates: Cesium.Cartesian3.fromDegrees(2.154007, 41.390205, 300.0)},
+  { cityName: "Athens", coordinates: Cesium.Cartesian3.fromDegrees(23.727539, 37.983810, 300.0)},
+  { cityName: "Budapest", coordinates: Cesium.Cartesian3.fromDegrees(19.040236, 47.497913, 300.0)},
+  { cityName: "Moscow", coordinates: Cesium.Cartesian3.fromDegrees(37.618423, 55.751244, 300.0)},
+  //{ cityName: "Mexico City", coordinates: Cesium.Cartesian3.fromDegrees(-99.133209, 19.432608, 300.0)},
+  //{ cityName: "Sao Paulo", coordinates: Cesium.Cartesian3.fromDegrees(-46.636111, -23.547573, 300.0)},
+  { cityName: "Cairo", coordinates: Cesium.Cartesian3.fromDegrees(31.233334, 30.033333, 300.0)},
+  { cityName: "Copenhagen", coordinates: Cesium.Cartesian3.fromDegrees(12.568337, 55.676098, 300.0)},
+  { cityName: "London", coordinates: Cesium.Cartesian3.fromDegrees(-0.118092, 51.509865, 300.0)},
+] 
+
+// Array of a random point around different cities
+let randomPointsArray = [];
+
+// Randomise array sequence
+function shuffleArray(array){
+  let currentIndex = array.length;
+  while(currentIndex != 0){
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+}
+
+// Generate a random point on all cities in the cities array
+// This function also randomises the city sequence
+function generateRandomPoints(){
+  shuffleArray(citiesArray)
+  for(let i = 0; i < citiesArray.length; i++){
+    let shuffledName = citiesArray[i].cityName;
+    let randomPoint = null;
+
+    while(randomPoint == null){
+      randomPoint = getNearbyLocation(citiesArray[i].coordinates);
+    }
+
+    let randomPointObj = {cityName: shuffledName, coordinates: randomPoint}
+    randomPointsArray.push(randomPointObj);
+
+    viewer.entities.add({
+      position: citiesArray[i].coordinates,
+      name: citiesArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.BLUE }
+    });
+  }
+  for(let i = 0; i < randomPointsArray.length; i++){
+    viewer.entities.add({
+      position: randomPointsArray[i].coordinates,
+      name: randomPointsArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.GREEN }
+    });
+  }
+}
+
+// Call randomise function
+generateRandomPoints();
+console.log(citiesArray);
+console.log(randomPointsArray);
 
 //gets the wind data and stores it to the module level variables 
 async function fetchAndStoreWind(latitude, longitude){
@@ -71,8 +162,8 @@ let nextTimeStep = startTime;
 viewer.clock.startTime = startTime.clone();
 viewer.clock.currentTime = startTime.clone();
 //viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
-// Start animating at x10 speed
-viewer.clock.multiplier = 10;
+// Start animating at x1 speed
+viewer.clock.multiplier = 1;
 //viewer.clock.shouldAnimate = true;
 
 /* CREATE PATH */
@@ -90,7 +181,6 @@ async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) 
   // Create SampledPositionProperty (this is a container for the list of points on the map)
   const positionProperty = new Cesium.SampledPositionProperty();
 
-  // TODO: Create random start points. Current is set at UOW SC
   // Add the last point on the map to the list of points
   positionProperty.addSample(startTime, lastPointOnMap); // We might need to remove this eventually as this might bug out if 2 points are on the exact same coordinates
 
@@ -147,18 +237,16 @@ async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) 
 async function getNextPoint(originPoint) {
   // Wait for wind data
   let originDegrees = cartesianToDegrees(originPoint);
-  // TODO: Change uowscDegrees into current position iteration's latitude and longitude
+  
   await fetchAndStoreWind(originDegrees.latitude, originDegrees.longitude);
   // Convert wind direction to radians
   let windDirRad = Cesium.Math.toRadians(windDirection);
   // Calculate magnitude (distance)
   let magnitude = windSpeed * timeStepInSeconds; // m/min
   // Calculate x and y coordinates
-  // TODO: Change uowscCartesian to current position iteration's x and y
   let nextX = originPoint.x + Math.cos(windDirRad) * magnitude;
   let nextY = originPoint.y + Math.sin(windDirRad) * magnitude;
   // Make cartesian point on Cesium Map
-  // TODO: Change uowscCartesian to current position iteration's z
   let nextPointCartesian = new Cesium.Cartesian3(nextX, nextY, originPoint.z);
   // Convert into cartographic
   let nextPointCartographic = Cesium.Cartographic.fromCartesian(nextPointCartesian);
@@ -166,7 +254,7 @@ async function getNextPoint(originPoint) {
   let longitude = Cesium.Math.toDegrees(nextPointCartographic.longitude);
   let latitude = Cesium.Math.toDegrees(nextPointCartographic.latitude);
   // Create nextPoint
-  let nextPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000); // Note: Hard-coded altitude
+  let nextPoint = Cesium.Cartesian3.fromDegrees(longitude, latitude, 300.0); // Note: Hard-coded altitude
 
   console.log("==============================================================");
   console.log("Wind Speed: " + windSpeed);
@@ -178,16 +266,39 @@ async function getNextPoint(originPoint) {
   return nextPoint;
 }
 
+// Teleport to next location
+function nextCity() {
+  // Reset position
+  startTime = viewer.clock.currentTime;
+  // Initialise nextTimeStep
+  nextTimeStep = startTime;
+  // Set clock settings
+  viewer.clock.startTime = startTime.clone();
+  viewer.clock.currentTime = startTime.clone();
+
+  // Create wind path for next city in the list. Spawn balloon on that location.
+  createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
+  console.log(randomPointsArray[currentCityIndex].cityName);
+
+  // Increment city index
+  currentCityIndex++;
+  // Loop back if reached last city
+  if (currentCityIndex >= citiesArray.length) {
+    currentCityIndex = 0;
+  }
+}
+
+// Finds a location near a city's centre coordinate
 function getNearbyLocation(cityCartesianPoint){
   const EARTH_R = 6371 * Math.pow(10, 3);
-  const MAX_R = 3000; // 3000m 
+  const MAX_R = 10000; // 10000m 
 
   let cityCartographicPoint = Cesium.Cartographic.fromCartesian(cityCartesianPoint);
   let city_lon_deg = Cesium.Math.toDegrees(cityCartographicPoint.longitude);
   let city_lat_deg = Cesium.Math.toDegrees(cityCartographicPoint.latitude);
 
-  let lonOffset = Math.floor(Math.random() - 0.5) * 0.02;
-  let latOffset = Math.floor(Math.random() - 0.5) * 0.02;
+  let lonOffset = Math.floor(Math.random() - 0.5) * 0.03;
+  let latOffset = Math.floor(Math.random() - 0.5) * 0.03;
 
   let ran_lon_deg = city_lon_deg + lonOffset;
   let ran_lat_deg = city_lat_deg + latOffset;
@@ -207,23 +318,18 @@ function getNearbyLocation(cityCartesianPoint){
   let distance = EARTH_R * c;
 
   console.log(distance);
-
-  if (distance < MAX_R){
-    console.log("True");
-    return true;
+  if (distance < MAX_R && distance > 0){
+    return Cesium.Cartesian3.fromDegrees(ran_lon_deg, ran_lat_deg, 300);
   } else {
-    console.log("False");
-    return false;
+    return null;
   }
 }
-
-getNearbyLocation(uowscCartesian);
 
 /*********************************
  * ENTITIES
  *********************************/
 // Create entity
-const balloon = viewer.entities.add({
+balloon = viewer.entities.add({
   name: "The hot air balloon",
   // Move entity via simulation time
   availability: new Cesium.TimeIntervalCollection([
@@ -233,13 +339,11 @@ const balloon = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: uowscCartesian, // Change this to random position on map
+  position: randomPointsArray[currentCityIndex].coordinates, 
   // Placeholder entity visuals
   ellipsoid: {
-    radii: new Cesium.Cartesian3(12.0, 12.0, 12.0),
-    material: Cesium.Color.RED.withAlpha(0.5),
-    outline: true,
-    outlineColor: Cesium.Color.BLACK,
+    radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
+    material: Cesium.Color.RED.withAlpha(0),
   },
   // Show path of hot air balloon
   path: {
@@ -280,8 +384,10 @@ let timeStepInSeconds = minute * 30;
 // DEBUG SAMPLE CODE (Change the long and lat values. Only change the thousands decimal if you want it close to UoW)
 // DEBUG NOTE: use yourPosition as your entity's starting location and use for the 2nd arg in createPath
 //var yourPosition = Cesium.Cartesian3.fromDegrees(175.3172, -37.78795, 100.0);
+
 // Generate path for the balloon
-createPath(balloon, uowscCartesian, numPoints, timeStepInSeconds);
+nextCity();
+//createPath(balloon, citiesArray[0].coordinates, numPoints, timeStepInSeconds);
 
 // Fly to entity (Viewer)
 // viewer.flyTo(balloon, {
@@ -290,6 +396,13 @@ createPath(balloon, uowscCartesian, numPoints, timeStepInSeconds);
 
 // Quick camera focus to target entity
 viewer.zoomTo(balloon, cameraOffset);
+
+nextCityButton.addEventListener('click', nextCity);
+
+/*********************************
+ * TOOLBAR
+ *********************************/
+
 
 /*********************************
  * RUNTIME CODE

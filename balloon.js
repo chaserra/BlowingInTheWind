@@ -62,7 +62,8 @@ function animate() {
   if(object) {
     //animateLanding(7);
     //animateRightTilt();
-    animateLeftTilt();
+    //animateLeftTilt();
+    object.rotation.y += 0.005;
   }
   renderer.render(scene, camera);
 }
