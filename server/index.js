@@ -29,6 +29,7 @@ io.on("connection", (socket) => {
         console.log(`User with ID ${socket.id} joined room: ${data}`)
     });
 
+    //listens from the client side the send_message event
     socket.on("send_message", (data) =>{
         socket.to(data.room).emit("receive_message", data);
     });
