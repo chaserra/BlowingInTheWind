@@ -56,11 +56,11 @@ scene.add(ambientLight);
 //Render the scene
 function animate() {
   requestAnimationFrame(animate);
-  //Here we could add some code to update the scene, adding some automatic movement
   if(object) {
     //animateLanding(7);
     //animateRightTilt();
-    animateLeftTilt();
+    //animateLeftTilt();
+    object.rotation.y += 0.005;
   }
   renderer.render(scene, camera);
 }
