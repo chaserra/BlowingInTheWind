@@ -21,11 +21,8 @@ loader.load(
     //If the file is loaded, add it to the scene
     object = gltf.scene;
     scene.add(object);
-    
-    object.position.set( 0, -9 ,  0);
+    object.position.set(0, -9, 3);
     object.rotation.x = 0.55;
-    //object.rotation.y = 0.4;
-    
   },
   function (xhr) {
     //While it is loading, log the progress
@@ -69,10 +66,12 @@ function animate() {
 }
 
 function animateLeftTilt(){
-  let new_x_pos = 0;
-  let new_y_pos = -9;
-  let new_z_pos = 3;
-  let tiltingSpeed = 0.0125;
+  let new_x_pos, new_y_pos, new_z_pos, tiltingSpeed;
+
+  new_x_pos = 0;
+  new_y_pos = -9;
+  new_z_pos = 3;
+  tiltingSpeed = 0.0125;
   
   let objAngle = 0.2;
   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
@@ -84,10 +83,12 @@ function animateLeftTilt(){
 }
 
 function animateRightTilt(){
-  let new_x_pos = 0;
-  let new_y_pos = -9;
-  let new_z_pos = 3;
-  let tiltingSpeed = 0.0125;
+  let new_x_pos, new_y_pos, new_z_pos, tiltingSpeed;
+
+  new_x_pos = 0;
+  new_y_pos = -9;
+  new_z_pos = 3;
+  tiltingSpeed = 0.0125;
   
   let objAngle = 0.2;
   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
@@ -99,9 +100,11 @@ function animateRightTilt(){
 }
 
 function animateLanding(newXPos){
-  let new_x_pos = newXPos;
-  let new_y_pos = -9;
-  let new_z_pos = 3;
+  let new_x_pos, new_y_pos, new_z_pos;
+
+  new_x_pos = newXPos;
+  new_y_pos = -9;
+  new_z_pos = 3;
   
   let objAngle = 0.25;
   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
