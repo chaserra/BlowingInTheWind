@@ -1,0 +1,7 @@
+// Config file to store API keys
+const config = {
+    CESIUM_API_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMjVmMzkzYS02MTM4LTQ2YTAtYjNhMy05ZmFhOWY5Y2Q5MDIiLCJpZCI6MjA5ODI3LCJpYXQiOjE3MTM1MDAyNjN9.SrQ5rn8K72P_luv7RePRsjLQOgA8QcpRIFdOCxUvG24',
+    WEATHER_API_KEY: '1a51a1358e149e76be1fde4d7c790322',
+}
+
+export default config;
