@@ -18,24 +18,32 @@
     }
   </style>
 </head>
-<body>
+<body id="index">
+  <div class="container-main">
+    <div class="container-left">
+      <div class="container-chat">
+        <div class="chat-content">
 
-  <div id ="container">
-    <div class = "center">
-      <h1>Blowing in the Wind</h1>
+        </div>
+      </div>
+      <div class="container-leaderboards">
+        <div class="leaderboards-content">
+
+        </div>
+      </div>
     </div>
-    
-    <div class = "pagination">
-      <a href="loading.html">
-        <button>Exit</button>
-      </a>    
-      <button id="next-city">Next</button>
-
+    <div class="container-right">
+      <div class="pagination">
+        <a href="loading.html">
+          <button>Exit</button>
+        </a>    
+        <button id="next-city">
+          <span>Next</span>
+        </button>
+      </div>
+      <div id="cesiumContainer"></div>
+      <div id="balloonContainer"></div>
     </div>
-    <div id="cesiumContainer"></div>
-    <div id="balloonContainer"></div>
-  </div>
-
-  
+  </div>  
 </body>
 </html>
