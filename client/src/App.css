@@ -3,7 +3,7 @@
   height: 100vh;
   background: #fff;
   color: #212121;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Titan", "Sniglet";
   display: grid;
   place-items: center;
 }
@@ -13,6 +13,18 @@ body {
 }
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
 
+@font-face {
+  font-family: Modak;
+  src: url(fonts/Modak-Regular.ttf);
+}
+@font-face {
+  font-family: Sniglet;
+  src: url(fonts/Sniglet-ExtraBold.ttf);
+}
+@font-face {
+  font-family: Titan;
+  src: url(fonts/TitanOne-Regular.ttf);
+}
 .joinChatContainer {
   display: flex;
   flex-direction: column;
@@ -61,7 +73,11 @@ body {
 .chat-window .chat-header {
   height: 45px;
   border-radius: 6px;
-  background: #263238;
+  background: #e46516;
+  text-shadow: -2px 0 rgb(125, 55, 1), 0 2px rgb(125, 55, 1), 2px 0 rgb(125, 55, 1), 0 -2px rgb(125, 55, 1);
+  background-image: url('balloon.svg');
+  background-repeat: no-repeat;
+  background-position: right;
   position: relative;
   cursor: pointer;
 }
@@ -69,15 +85,15 @@ body {
   display: block;
   padding: 0 1em 0 2em;
   color: #fff;
-  font-weight: 700;
   line-height: 45px;
 }
 
 .chat-window .chat-body {
   height: calc(450px - (45px + 70px));
   border: 1px solid #263238;
-  background: #fff;
-
+  background-color: lightblue;
+  background-repeat: no-repeat;
+  z-index: 1;
   position: relative;
 }
 .chat-window .chat-body .message-container {
@@ -125,6 +141,9 @@ body {
 #you .message-meta {
   justify-content: flex-start;
   margin-left: 5px;
+  color: rgba(21, 59, 85, 0.932);
+  background-color: lightblue;
+
 }
 
 #other {
@@ -139,11 +158,13 @@ body {
 #other .message-meta {
   justify-content: flex-end;
   margin-right: 5px;
+  color: rgba(21, 59, 85, 0.932);
+  background-color: lightblue;
+
 }
 
 .message-meta #author {
   margin-left: 10px;
-  font-weight: bold;
 }
 
 .chat-window .chat-body .message .message-meta {
@@ -167,7 +188,7 @@ body {
   border-right: 1px dotted #607d8b;
 
   outline: none;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Titan";
 }
 
 .chat-window .chat-footer button {
