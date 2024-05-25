@@ -132,6 +132,25 @@
     height: 100%;
 }
 
+#timer-container {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    vertical-align: top;
+    text-align: center;
+    z-index: 1;
+    pointer-events: none;
+}
+
+#timer-container span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+    color: #ffffff;
+    text-shadow: 2px 2px #3f3f3f;
+}
+
 @font-face {
     font-family: Modak;
     src: url(fonts/Modak-Regular.ttf);
