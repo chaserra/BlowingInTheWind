@@ -189,3 +189,7 @@ body {
 .hide {
   opacity: 0 !important;
 }
+
+.leaderboard-header {
+  text-align: center;
+}

@@ -61,6 +61,8 @@ io.on("connection", (socket) => {
         // Initialise a set for each player for their guesses
         playerGuesses[socket.id] = new Set();
 
+        io.in(data.room).emit("show_prev_scores", playerScores);
+
         console.log(`User with ID ${socket.id} joined room: ${data}`);
         console.log(`User ${socket.id} score: ${playerScores[socket.id]}`);
 
@@ -101,7 +103,7 @@ io.on("connection", (socket) => {
             score: playerScores[socket.id],
         };
 
-        //io.in(data.room).emit("update_board", playerScore);
+        io.in(data.room).emit("update_board", playerScore);
     });
 
     socket.on("disconnect", (data) =>{

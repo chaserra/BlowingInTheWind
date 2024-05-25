@@ -4,7 +4,7 @@ import ScrollToBottom from 'react-scroll-to-bottom';
 function BitwChat({socket, username, room}) {
     const [currentMessage, setCurrentMessage] = useState("");
     const [messageList, setMessageList] = useState([]);
-    // const [scoreList, setScoreList] = useState([]);
+    const [scoreList, setScoreList] = useState([]);
 
     const sendMessage = async () =>{
         if(currentMessage !== "" ){
@@ -38,28 +38,28 @@ function BitwChat({socket, username, room}) {
           setMessageList((list) => [...list, data]);
         });
         
-        // socket.on("update_board", (data) => {
-        //   setScoreList((playerList) => {
-        //     // check if the player exists in the list
-        //     const playerIndex = playerList.findIndex(player => player.id === data.id);
-        //     // if player exists in the list
-        //     if (playerIndex > -1) {
-        //         // get the existing list
-        //         const updatedScores = [...playerList];
-        //         // update the display score at the player's index
-        //         updatedScores[playerIndex].score = data.score;
-        //         return updatedScores;
-        //     } else {
-        //         // add new player score
-        //         return [...playerList, data];
-        //     }
-        //   });
-        // });
+        socket.on("update_board", (data) => {
+          setScoreList((list) => {
+            const index = list.findIndex(player => player.id === data.id);
+            if (index !== -1){
+              const updatedScores = [...list];
+              updatedScores[index].score = data.score;
+              return updatedScores;
+            } else {
+              return [...list, data];
+            }
+          });
+        });
 
+        socket.on("show_prev_scores", room, (data) =>{
+          setScoreList(data);
+        });
+        
         // Cleanup the socket event listener to avoid memory leaks
         return () => {
         socket.off("receive_message");
-        socket.off("update_score");
+        socket.off("update_board");
+        socket.off("show_prev_scores");
     };
     }, [socket]);
     return (
@@ -99,8 +99,15 @@ function BitwChat({socket, username, room}) {
                 <button onClick={sendMessage}>&#9658;</button>
             </div>
             <div className="leaderboard">
-              <h3>Leaderboard</h3>
-                  
+              <h3 className="leaderboard-header">LEADERBOARD</h3>
+                  {scoreList.map((scoreContent, index) => {
+                    return (
+                      <div key={index} className="player-score-div">
+                        <span className="player-name">{scoreContent.name}: </span>
+                        <span className="player-score">{scoreContent.score}</span>
+                      </div>
+                    );
+                  })}
             </div> 
           </div>
     );
