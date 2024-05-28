@@ -180,6 +180,8 @@
   /* CREATE PATH */
   // Create the path for the target object
   async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) {
+    //Reset array
+    positionArray = [];
     // Storage for last point on map where wind data was obtained from
     var lastPointOnMap = startPos;
     console.log("Balloon Point One: " + lastPointOnMap);
@@ -218,7 +220,7 @@
       const text = "pos" + (i+1) + " -- " + newDate.year + "/" + newDate.month + "/" + newDate.day + " | "
                 + newDate.hour + ":" + newDate.minute + ":" + newDate.second;
 
-      // // Create entity based on sample position
+      // Create entity based on sample position
       // viewer.entities.add({
       //   position: thisPoint,
       //   name: text,
@@ -329,7 +331,7 @@
           if (Cesium.Cartesian3.equalsEpsilon(positionAtTime, finalPosition, epsilon)) {
             viewer.entities.remove(pEntity);
             pathEntitiesRemoved++;
-            //console.log("Removed: " + pathEntitiesRemoved);
+            console.log("Removed: " + pathEntitiesRemoved);
           }
           else{
             //console.log("Positions not equal");
@@ -346,7 +348,7 @@
     // console.log("Sampled position: ");
     // console.log(positionProperty);
     
-    //console.log("NUMBER OF ACTIVE ENTITIES: " + countActiveEntities());
+    console.log("NUMBER OF ACTIVE ENTITIES: " + countActiveEntities());
     //console.log("ENTITY POSITIONS: ");
     //console.log(positionProperty);
     return positionProperty;
@@ -450,12 +452,27 @@
     // Create wind path for next city in the list. Spawn balloon on that location.
     createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
     console.log(randomPointsArray[currentCityIndex].cityName);
-
+    
     // Increment city index
     currentCityIndex++;
     // Loop back if reached last city
+    
     if (currentCityIndex >= citiesArray.length) {
       currentCityIndex = 0;
+    }
+    //remove all previous path entities
+    removeAllEntitiesByName("Path Entity");
+    setTimeout(createPathEntity, 5000);
+  }
+
+  
+  function removeAllEntitiesByName(entityName) {
+    let entities = viewer.entities.values;
+  
+    for (let i = entities.length - 1; i >= 0; i--) {
+      if (entities[i].name === entityName) {
+        viewer.entities.remove(entities[i]);
+      }
     }
   }
 
@@ -516,21 +533,23 @@
       radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
       material: Cesium.Color.RED.withAlpha(0),
     },
-    // Show path of hot air balloon
-    path: {
-      resolution: 1,
-      material: new Cesium.PolylineGlowMaterialProperty({
-        glowPower: 0.1,
-        color: Cesium.Color.YELLOW,
-      }),
-      width: 10,
-    },
+    //Show path of hot air balloon
+    // path: {
+    //   resolution: 1,
+    //   material: new Cesium.PolylineGlowMaterialProperty({
+    //     glowPower: 0.1,
+    //     color: Cesium.Color.YELLOW,
+    //   }),
+    //   width: 10,
+    // },
   });
 
   // Create a compass element
   var compass = document.createElement('div');
   compass.className = 'cesium-compass';
   viewer.container.appendChild(compass);
+  //set to north
+  compass.style.transform = 360 - Cesium.Math.toDegrees( viewer.camera.heading );
 
   // Update compass orientation when camera changes
   viewer.scene.postRender.addEventListener(function() {
@@ -574,8 +593,8 @@
 
       box : {
         dimensions : new Cesium.Cartesian3(30, 8, 2),
-        material : Cesium.Color.GREEN.withAlpha(0.5),
-        outline : true,
+        material : Cesium.Color.BLUE,
+        //outline : true,
         outlineColor : Cesium.Color.YELLOW
       },
       // path: {
@@ -605,7 +624,7 @@
   //first path entity - called only once
   //NOTE: if clock is started as soon as program is loaded this entity gets removed
   //  wait a few seconds for game to load or increase the setTimeout time 
-  setTimeout(createPathEntity, 3000);
+  setTimeout(createPathEntity, 4000);
 
   // Set up the onTick event listener
   viewer.clock.onTick.addEventListener(function(clock) {
