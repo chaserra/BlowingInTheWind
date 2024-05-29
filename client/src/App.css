@@ -1,28 +1,45 @@
-.App {
-  width: 100vw;
-  height: 100vh;
-  background: #fff;
-  color: #212121;
-  font-family: "Open Sans", sans-serif;
-  display: grid;
-  place-items: center;
-}
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
+
 body {
   margin: 0%;
   padding: 0%;
 }
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
+
+.chat-content #chat {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.App {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  color: #212121;
+  font-family: "Open Sans", sans-serif;
+  place-items: center;
+  z-index: 999;
+}
 
 .joinChatContainer {
+  display: block;
+  text-align: center;
+}
+
+/*.joinChatContainer {
   display: flex;
   flex-direction: column;
   text-align: center;
-}
+}*/
 
 .joinChatContainer h3 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
+
 .joinChatContainer input {
   width: 210px;
   height: 40px;
@@ -51,8 +68,9 @@ body {
 }
 
 .chat-window {
-  width: 300px;
-  height: 420px;
+  height: 60%;
+  width: 100%;
+  max-height: 420px;
 }
 
 .chat-window p {
@@ -69,6 +87,7 @@ body {
   display: block;
   padding: 0 1em 0 2em;
   color: #fff;
+  font-size: 16px;
   font-weight: 700;
   line-height: 45px;
 }
@@ -85,6 +104,7 @@ body {
   height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
+  font-size: 12px;
 }
 
 .chat-window .chat-body .message-container::-webkit-scrollbar {
@@ -163,7 +183,7 @@ body {
   flex: 85%;
   border: 0;
   padding: 0 0.7em;
-  font-size: 1em;
+  font-size: 12px;
   border-right: 1px dotted #607d8b;
 
   outline: none;

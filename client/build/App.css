@@ -1,13 +1,22 @@
+.chat-content #chat {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .App {
-  width: 100vw;
-  height: 100vh;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
   background: #fff;
   color: #212121;
   font-family: "Open Sans", sans-serif;
-  display: grid;
   place-items: center;
-  z-index: 11111111;
+  z-index: 999;
 }
+
 body {
   margin: 0%;
   padding: 0%;
