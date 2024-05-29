@@ -429,3 +429,11 @@ Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel,
     viewer.zoomTo(balloon, cameraOffset);
   }
 });
+
+const socket = io();
+
+socket.on('message', (data) => {
+  console.log('Message from server:', data);
+});
+
+socket.emit('chat_message', 'Hello, server!');

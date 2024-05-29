@@ -37,16 +37,13 @@ function shuffleArray(array){
 }
 
 // shuffle cities array
-let shuffledArray = []
-shuffleArray(citiesArray);
+let shuffledArray = [...citiesArray]
+shuffleArray(shuffledArray);
 
-for (let i = 0; i < citiesArray.length; i++){
-    shuffledArray.push(citiesArray[i]);
-}
-
-// initialise playerScores object that will contain socket.id scores
-let playerScores = {};
-let playerGuesses = {};
+// initialise necessary objects
+let allPlayers = {};
+let cityForEachRoom = {};
+let cityIndex = 0; 
 
 //listen a connection  event from client
 //socket is specific to a client  
@@ -56,22 +53,36 @@ io.on("connection", (socket) => {
     //listens from client side if they joined a room - gets data (in this case the room) from that particular client 
     socket.on("join_room", (data) => {
         socket.join(data);
-        // Initialise each player's score to 0
-        playerScores[socket.id] = 0;
-        // Initialise a set for each player for their guesses
-        playerGuesses[socket.id] = new Set();
 
-        io.in(data.room).emit("show_prev_scores", playerScores);
+        // initialise the allPlayers object for each player
+        allPlayers[socket.id] = {
+            room: data,
+            score: 0,
+            isCorrect: false,
+            guesses: new Set()
+        }
 
+        if (!cityForEachRoom[data]) {
+            if(cityIndex > shuffledArray.length){
+                cityIndex = 0;
+            } else {
+                cityForEachRoom[data] = shuffledArray[cityIndex];
+                cityIndex++;    
+            }
+        }
+
+        // initialise the cityFotEachRoom object so that each room gets a different city
         console.log(`User with ID ${socket.id} joined room: ${data}`);
-        console.log(`User ${socket.id} score: ${playerScores[socket.id]}`);
+        console.log(`User ${socket.id} score: ${allPlayers[socket.id].score}`);
 
-        console.log(shuffledArray[0].cityName);
+        console.log(cityForEachRoom);   
     });
+
 
     //listens from the client side the send_message event
     socket.on("send_message", (data) =>{
-        let currentCity = shuffledArray[0].cityName;
+        let currentCity = cityForEachRoom[data.room].cityName;
+        let player = allPlayers[socket.id];
         let correctMsg = {
             room: data.room,
             author: 'Program',
@@ -80,19 +91,52 @@ io.on("connection", (socket) => {
         };
 
         // check if the player's guess already exists in their set
-        if(playerGuesses[socket.id].has(data.message.toLowerCase())){
+        if(player.guesses.has(data.message.toLowerCase())){
             correctMsg.message = `${data.author} has already guessed correctly.`;
             
             io.in(data.room).emit("receive_message", correctMsg);
         }
         else if (data.message.toLowerCase() == currentCity.toLowerCase()){
             // increment player score by 1
-            playerScores[socket.id]++;
+            player.score++;
             // add the user's correct guess to their set
-            playerGuesses[socket.id].add(data.message);
-            console.log(playerScores);
+            player.guesses.add(data.message);
+            // set player's isCorrect to true
+            player.isCorrect = true;
 
+            console.log(allPlayers);
             io.in(data.room).emit("receive_message", correctMsg);
+
+            let isCorrectCount = 0;
+            for (let player in allPlayers) {
+                if (allPlayers[player].room === data.room && allPlayers[player].isCorrect) {
+                    isCorrectCount++;
+                }
+            }
+
+            // check if all players in the room have guessed correctly
+            let allRooms = getRoomCount();
+            if(allRooms[data.room]){
+                if (isCorrectCount == allRooms[data.room].count){
+                    // move on to the next for the room (i.e room 1 moves on to Paris when they had Rome)
+                    if (cityIndex >= shuffledArray.length){
+                        cityIndex = 0;
+                    }
+                    
+                    cityForEachRoom[data.room] = shuffledArray[cityIndex];
+                    cityIndex++;
+
+                    console.log(cityForEachRoom);
+
+                    // reset all players' isCorrect to false and clear their guesses
+                    for (let player in allPlayers) {
+                        if (allPlayers[player].room === data.room) {
+                            allPlayers[player].isCorrect = false;
+                            allPlayers[player].guesses.clear();
+                        }
+                    }
+                }
+            }
         } else {
             socket.to(data.room).emit("receive_message", data);
         }
@@ -100,18 +144,35 @@ io.on("connection", (socket) => {
         let playerScore = {
             id: socket.id,
             name: data.author,
-            score: playerScores[socket.id],
+            score: player.score,
         };
 
         io.in(data.room).emit("update_board", playerScore);
     });
 
-    socket.on("disconnect", (data) =>{
-        console.log("user disconnect", socket.id);
-        delete playerScores[socket.id];
-        delete playerGuesses[socket.id];
+    socket.on('chat_message', (data) => {
+        console.log('Message from chat:', data);
+        socket.emit('message', {text: "Hello from server hehe"});
     });
 
+    socket.on("disconnect", (data) =>{
+        console.log("user disconnect", socket.id);
+        delete allPlayers[socket.id];
+    });
+
+    function getRoomCount(){
+        let roomCounts = {};
+        for (let player in allPlayers){
+            let room = allPlayers[player].room;
+            if (roomCounts[room]){
+                roomCounts[room].count++;
+            } else {
+                roomCounts[room] = { count: 1 };
+            }
+        }
+
+        return roomCounts;
+    }
 });
 
 server.listen(3001, ()=> {

@@ -50,16 +50,12 @@ function BitwChat({socket, username, room}) {
             }
           });
         });
-
-        socket.on("show_prev_scores", room, (data) =>{
-          setScoreList(data);
-        });
         
         // Cleanup the socket event listener to avoid memory leaks
         return () => {
         socket.off("receive_message");
         socket.off("update_board");
-        socket.off("show_prev_scores");
+        socket.off("show_player_scores");
     };
     }, [socket]);
     return (
