@@ -5,8 +5,22 @@ const app = express();
 const http = require("http");
 const cors = require("cors");
 const {Server} = require("socket.io");
+const path = require("path"); // Import the path module
 
 app.use(cors());
+
+// Middleware to set the correct MIME type for CSS files
+app.use((req, res, next) => {
+    if (req.url.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+    }
+    next();
+});
+
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+
 
 //generate a server 
 const server =  http.createServer(app);
