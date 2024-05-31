@@ -28,13 +28,11 @@ const nextCityButton = document.getElementById("next-city");
 
 var balloon;
 
+//viewer.scene.debugShowFramesPerSecond = true;
+
 /*********************************
  * VISUALISE BUILDINGS
  *********************************/
-// Cesium's Default OSM Buildings
-//const buildingTileSet = await Cesium.createOsmBuildingsAsync();
-//viewer.scene.primitives.add(buildingTileSet);
-
 // Google Map's Photorealistic 3d Tileset
 try {
   const buildingTileSet = await Cesium.createGooglePhotorealistic3DTileset();
@@ -56,8 +54,6 @@ function cartesianToDegrees(cartesian) {
   const latitude = Cesium.Math.toDegrees(cartographic.latitude);
   return {longitude, latitude};
 }
-// UoW Student Centre Coordinates
-const uowscCartesian = Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 300.0);
 
 // Index iterator
 var currentCityIndex = 0;
@@ -72,7 +68,7 @@ let citiesArray = [
   { cityName: "Toronto", coordinates: Cesium.Cartesian3.fromDegrees(-79.384293, 43.653908, 300.0)},
   { cityName: "Sydney", coordinates: Cesium.Cartesian3.fromDegrees(151.209900, -33.865143, 300.0)},
   { cityName: "San Francisco", coordinates: Cesium.Cartesian3.fromDegrees(-122.431297, 37.773972, 300.0)},
-  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-75.000000, 43.000000, 300.0)},
+  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-73.935242, 40.730610, 300.0)},
   { cityName: "Seoul", coordinates: Cesium.Cartesian3.fromDegrees(127.024612, 37.532600, 300.0)},
   { cityName: "New Delhi", coordinates: Cesium.Cartesian3.fromDegrees(77.216721, 28.644800, 300.0)},
   { cityName: "Barcelona", coordinates: Cesium.Cartesian3.fromDegrees(2.154007, 41.390205, 300.0)},
@@ -147,13 +143,7 @@ async function fetchAndStoreWind(latitude, longitude){
  *********************************/
 // One minute
 const minute = 60;
-// Storage for last point on map where wind data was obtained from
-// TODO: Make container of last point for each entity
-//var lastPointOnMap;
-
 /* INITIAL VALUES ON LOAD */
-// Set initial position at startTime
-//lastPointOnMap = uowscCartesian;
 // Set startTime to current time
 let startTime = viewer.clock.currentTime;
 // Initialise nextTimeStep
@@ -381,28 +371,60 @@ let numPoints = 5;
 // Set up clock
 // Time it takes to go to destination
 let timeStepInSeconds = minute * 30;
-// DEBUG SAMPLE CODE (Change the long and lat values. Only change the thousands decimal if you want it close to UoW)
-// DEBUG NOTE: use yourPosition as your entity's starting location and use for the 2nd arg in createPath
-//var yourPosition = Cesium.Cartesian3.fromDegrees(175.3172, -37.78795, 100.0);
-
-// Generate path for the balloon
-nextCity();
-//createPath(balloon, citiesArray[0].coordinates, numPoints, timeStepInSeconds);
-
-// Fly to entity (Viewer)
-// viewer.flyTo(balloon, {
-//   offset: cameraOffset,
-// });
 
 // Quick camera focus to target entity
 viewer.zoomTo(balloon, cameraOffset);
+// Or set tracked entity for instant zoom
+// viewer.trackedEntity = balloon;
+
+// Generate path for the balloon
+nextCity();
 
 nextCityButton.addEventListener('click', nextCity);
 
 /*********************************
- * TOOLBAR
+ * TIMER
  *********************************/
+let minutesText = document.getElementById("minutes");
+let secondsText = document.getElementById("seconds");
 
+function startTimer(duration) {
+  var timer = duration, minutes, seconds;
+
+  setInterval(function () {
+    // Calculate time to display
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+
+    // Add 0 if less than 10
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    // Display on span
+    minutesText.innerText = minutes;
+    secondsText.innerText = seconds;
+
+    // Change colour to red if timer has 10 seconds left
+    if(timer <= 10) {
+      minutesText.style.color = '#ff0000';
+      secondsText.style.color = '#ff0000';
+    } else {
+      minutesText.style.color = '#ffffff';
+      secondsText.style.color = '#ffffff';
+    }
+
+    // When timer ends
+    if (--timer < 0) {
+      // Reset duration
+      timer = duration;
+      // Call nextCity
+      nextCity();
+    }
+  }, 1000);
+}
+
+// Start 2 minute timer
+//startTimer(60 * 1);
 
 /*********************************
  * RUNTIME CODE

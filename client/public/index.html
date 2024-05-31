@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Balloon Render On Cesium</title>
   <link rel="stylesheet" type="text/css" href="./style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
   <!-- Include the CesiumJS JavaScript and CSS files -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Cesium.js"></script>  
   <script type="module" src="bitw_script.js"></script>
@@ -44,6 +45,11 @@
         <button id="next-city">
           <span>Next</span>
         </button>
+      </div>
+      <div id="timer-container">
+        <span id="minutes">00</span>
+        <span>:</span>
+        <span id="seconds">00</span>
       </div>
       <div id="cesiumContainer"></div>
       <div id="balloonContainer"></div>

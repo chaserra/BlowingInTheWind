@@ -24,7 +24,7 @@ function App() {
       {/* shows the chat only when show chat is set to true */}
       {!showChat ? (
       <div className = "joinChatContainer">
-      <h3>Join Chat</h3>
+      <h3>Join Game</h3>
       <input type = "text" placeholder = "John..." 
       //whenever the user changes their input, it also changes the username in the username state
        onChange={(event) => {
@@ -37,7 +37,7 @@ function App() {
         setRoom(event.target.value);
        }}/>
       
-      <button onClick ={joinRoom}> Join a Room</button>
+      <button onClick ={joinRoom}> Join a Game</button>
       </div>
       ) : (
        
