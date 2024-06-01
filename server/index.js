@@ -34,9 +34,9 @@ const io = new Server(server, {
 
 // initialise cities array
 let citiesArray = [
-    { cityName: "Auckland", coordinates: [174.763336, -36.848461, 300.0]},
-    { cityName: "Rome", coordinates: [12.496366, 41.902782, 300.0]},
-    { cityName: "Paris", coordinates: [2.349014, 48.864716, 300.0]}
+    { city: "Auckland", coordinates: [174.763336, -36.848461, 300.0]},
+    { city: "Rome", coordinates: [12.496366, 41.902782, 300.0]},
+    { city: "Paris", coordinates: [2.349014, 48.864716, 300.0]}
 ] 
 
 // method for shuffling an array
@@ -85,17 +85,21 @@ io.on("connection", (socket) => {
             }
         }
 
+        console.log("Data to send to client:", cityForEachRoom[data]);
+        socket.emit("send_city", "hello");
+        socket.emit("join_room", data);
+
         // initialise the cityFotEachRoom object so that each room gets a different city
         console.log(`User with ID ${socket.id} joined room: ${data}`);
         console.log(`User ${socket.id} score: ${allPlayers[socket.id].score}`);
 
-        console.log(cityForEachRoom);   
+        console.log(cityForEachRoom);  
     });
 
 
     //listens from the client side the send_message event
     socket.on("send_message", (data) =>{
-        let currentCity = cityForEachRoom[data.room].cityName;
+        let currentCity = cityForEachRoom[data.room].city;
         let player = allPlayers[socket.id];
         let correctMsg = {
             room: data.room,
@@ -128,21 +132,26 @@ io.on("connection", (socket) => {
                 }
             }
 
-            // check if all players in the room have guessed correctly
+            // get the number of players for each room
             let allRooms = getRoomCount();
+            // check if the room exists 
             if(allRooms[data.room]){
+                // if everyone in the room has guessed correct
                 if (isCorrectCount == allRooms[data.room].count){
-                    // move on to the next for the room (i.e room 1 moves on to Paris when they had Rome)
+                    // if the cityIndex is more than or equal to the length of the cities array
                     if (cityIndex >= shuffledArray.length){
+                        // set index back to the first city
                         cityIndex = 0;
                     }
                     
+                    // replace the current city with the next city (cityIndex should be forward at this point)
                     cityForEachRoom[data.room] = shuffledArray[cityIndex];
+                    // increment cityIndex for the next new city
                     cityIndex++;
 
                     console.log(cityForEachRoom);
 
-                    // reset all players' isCorrect to false and clear their guesses
+                    // reset all player's stats 
                     for (let player in allPlayers) {
                         if (allPlayers[player].room === data.room) {
                             allPlayers[player].isCorrect = false;
@@ -162,11 +171,6 @@ io.on("connection", (socket) => {
         };
 
         io.in(data.room).emit("update_board", playerScore);
-    });
-
-    socket.on('chat_message', (data) => {
-        console.log('Message from chat:', data);
-        socket.emit('message', {text: "Hello from server hehe"});
     });
 
     socket.on("disconnect", (data) =>{

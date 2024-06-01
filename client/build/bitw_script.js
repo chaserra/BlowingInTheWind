@@ -451,3 +451,13 @@ Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel,
     viewer.zoomTo(balloon, cameraOffset);
   }
 });
+
+const socket = io();
+
+socket.on("join_room", (data) => {
+  socket.join(data);
+
+  socket.on("send_city", (data) => {
+    console.log(data);
+  });
+});
