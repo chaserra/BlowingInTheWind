@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
 
 body {
   margin: 0%;
@@ -222,4 +223,50 @@ body {
 
 .hide {
   opacity: 0 !important;
+}
+
+.leaderboard {
+  display: block;
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.leaderboard-header {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-size: 30px;
+  color: #ffffff;
+  background-color: #263238;
+  margin: 0;
+  padding: 10px 0px;
+  border-radius: 5px;
+}
+
+.player-score-div {
+  display: block;
+  position: relative;
+
+  padding: 5px 10px;
+
+  border-bottom: 1px solid#606060;
+}
+
+.player-score-div > span.player-name {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.leaderboard > .player-score-div:nth-child(odd) {
+  color: #ffffff;
+  background-color: #607d8b;
+}
+
+.leaderboard > .player-score-div:nth-child(even) {
+  color: #000000;
+  background-color: #a9dbf5;
 }
