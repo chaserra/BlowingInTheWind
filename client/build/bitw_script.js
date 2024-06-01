@@ -424,7 +424,7 @@ function startTimer(duration) {
 }
 
 // Start 2 minute timer
-//startTimer(60 * 1);
+startTimer(60 * 1);
 
 /*********************************
  * RUNTIME CODE
