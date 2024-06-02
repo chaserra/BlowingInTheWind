@@ -58,6 +58,7 @@ function BitwChat({socket, username, room}) {
         socket.off("show_player_scores");
     };
     }, [socket]);
+
     return (
         <div className= "chat-window">
             <div className="chat-header">
@@ -109,6 +110,6 @@ function BitwChat({socket, username, room}) {
             </div> 
           </div>
     );
-}
+}           
 
 export default BitwChat
