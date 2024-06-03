@@ -5,39 +5,34 @@
   <title>Balloon Render On Cesium</title>
   <link rel="stylesheet" type="text/css" href="./style.css" />
   <!-- Include the CesiumJS JavaScript and CSS files -->
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Cesium.js"></script>  
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Cesium.js"></script>
   <script type="module" src="bitw_script.js"></script>
   <script type="module" src="/balloon.js"></script>
+  <script type="module">
+    import { imageClick } from './balloon.js';
+    window.imageClick = imageClick; // Make the function globally accessible
+  </script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-    }
-    .center {
-      text-align: center;
-    }
-  </style>
 </head>
 <body>
-
-  <div id ="container">
+  <div id="container">
     <div id="cesiumContainer"></div>
     <div id="balloonContainer"></div>
+    <div id="dropdownContainer">
+      <div class="dropdown">
+        <button class="dropbtn">Select Balloon</button>
+        <div class="dropdown-content">
+          <img src="skins/image1.png" alt="Image 1" class="dropdown-img" onclick="imageClick('Image 1')">
+          <img src="skins/image2.png" alt="Image 2" class="dropdown-img" onclick="imageClick('Image 2')">
+          <img src="skins/image3.png" alt="Image 3" class="dropdown-img" onclick="imageClick('Image 3')">
+          <img src="skins/image4.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 4')">
+          <img src="skins/image5.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 5')">
+          <img src="skins/image6.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 6')">
+          <img src="skins/image7.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 7')">
+          <img src="skins/image8.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 8')">
+        </div>
+      </div>
+    </div>
   </div>
-  
-
-  <div class = "center">
-    <h1>Blowing in the Wind</h1>
-  </div>
-  
-  <div class = "pagination">
-    <a href="loading.html">
-    <button >Exit</button>
-    </a>    
-  </div>
-
-  <div id="cesiumContainer"></div>
-
-  
 </body>
 </html>
