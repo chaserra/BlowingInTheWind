@@ -452,12 +452,16 @@ Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel,
   }
 });
 
-const socket = io();
+import socket from '../src/SocketInstance'; // Adjust the import path as needed
 
-socket.on("join_room", (data) => {
-  socket.join(data);
+// Function to join a room
+window.joinRoom = async function(room) {
+  socket.emit("join_room", room);
+};
 
-  socket.on("send_city", (data) => {
-    console.log(data);
+// Example listener for city_data event
+window.addEventListener('DOMContentLoaded', async () => {
+  socket.on("city_data", (data) => {
+    console.log("Received data from server:", data);
   });
 });

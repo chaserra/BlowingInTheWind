@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import './App.css';
-import io from 'socket.io-client';
 import BitwChat from './BitwChat';
+import socket from './SocketInstance';
 
-const socket = io.connect("http://localhost:3001");
 
 function App() {
   //initialises user and room state 
@@ -11,12 +10,12 @@ function App() {
   const [room, setRoom] = useState("");
   const [showChat, setShowChat] = useState(false);
 
-  const joinRoom = () => {
-    if(username !== "" && room !== ""){
+  const joinRoom = async () => {
+    if (username !== "" && room !== "") {
       socket.emit("join_room", room);
+      window.joinRoom(room);
       setShowChat(true);
     }
-    
   };
 
   return (

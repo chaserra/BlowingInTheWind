@@ -6,6 +6,7 @@ const http = require("http");
 const cors = require("cors");
 const {Server} = require("socket.io");
 const path = require("path"); // Import the path module
+var serveindex = require('serve-index')
 
 app.use(cors());
 
@@ -20,7 +21,8 @@ app.use((req, res, next) => {
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '../client/build')));
 
-
+var chat = __dirname + '/src';
+app.use('/src', serveindex(chat));
 
 //generate a server 
 const server =  http.createServer(app);
@@ -63,6 +65,7 @@ let cityIndex = 0;
 //socket is specific to a client  
 io.on("connection", (socket) => {
     console.log(`user connected ${socket.id}`);
+    let city = [];
 
     //listens from client side if they joined a room - gets data (in this case the room) from that particular client 
     socket.on("join_room", (data) => {
@@ -84,17 +87,15 @@ io.on("connection", (socket) => {
                 cityIndex++;    
             }
         }
+        city = cityForEachRoom[data];
+        const cityData = cityForEachRoom[data];
+        console.log(`Sending city data to room ${data}:`, cityData);
+        io.to(data).emit("city_data", cityData)
 
-        console.log("Data to send to client:", cityForEachRoom[data]);
-        socket.emit("send_city", "hello");
-        socket.emit("join_room", data);
-
-        // initialise the cityFotEachRoom object so that each room gets a different city
-        console.log(`User with ID ${socket.id} joined room: ${data}`);
-        console.log(`User ${socket.id} score: ${allPlayers[socket.id].score}`);
-
-        console.log(cityForEachRoom);  
+       
     });
+
+    
 
 
     //listens from the client side the send_message event
