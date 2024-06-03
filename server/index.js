@@ -36,7 +36,23 @@ const io = new Server(server, {
 let citiesArray = [
     { city: "Auckland", coordinates: [174.763336, -36.848461, 300.0]},
     { city: "Rome", coordinates: [12.496366, 41.902782, 300.0]},
-    { city: "Paris", coordinates: [2.349014, 48.864716, 300.0]}
+    { city: "Paris", coordinates: [2.349014, 48.864716, 300.0]},
+    { city: "Tokyo", coordinates: [139.817413, 35.672855, 300.0]},
+    { city: "Dubai", coordinates: [55.296249, 25.276987, 300.0]},
+    { city: "Hamilton", coordinates: [175.269363, -37.781528, 300.0]},
+    { city: "Toronto", coordinates: [-79.384293, 43.653908, 300.0]},
+    { city: "Sydney", coordinates: [151.209900, -33.865143, 300.0]},
+    { city: "San Francisco", coordinates: [-122.431297, 37.773972, 300.0]},
+    { city: "New York", coordinates: [-73.935242, 40.730610, 300.0]},
+    { city: "Seoul", coordinates: [127.024612, 37.532600, 300.0]},
+    { city: "New Delhi", coordinates: [77.216721, 28.644800, 300.0]},
+    { city: "Barcelona", coordinates: [2.154007, 41.390205, 300.0]},
+    { city: "Athens", coordinates: [23.727539, 37.983810, 300.0]},
+    { city: "Budapest", coordinates: [19.040236, 47.497913, 300.0]},
+    { city: "Moscow", coordinates: [37.618423, 55.751244, 300.0]},
+    { city: "Cairo", coordinates: [31.233334, 30.033333, 300.0]},
+    { city: "Copenhagen", coordinates: [12.568337, 55.676098, 300.0]},
+    { city: "London", coordinates: [-0.118092, 51.509865, 300.0]},
 ] 
 
 // method for shuffling an array
@@ -152,7 +168,7 @@ io.on("connection", (socket) => {
                     cityIndex++;
 
                     const cityData = cityForEachRoom[data.room];
-                    io.to(data).emit("city_data", cityData);
+                    io.to(data.room).emit("city_data", cityData);
 
                     console.log(cityForEachRoom[data.room]);
 
