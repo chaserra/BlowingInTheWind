@@ -434,7 +434,8 @@ window.joinRoom = function(room){
 }
 
 socket.on("city_data", (data) => {
-  
+  //console.log("Current city:", data)
+  // ********** We need to convert data.coordinates into something cesium can understand **************
   var newCoords = Cesium.Cartesian3.fromDegrees(data.coordinates[0], data.coordinates[1], data.coordinates[2]);
   let temp = { cityName: data.city, coordinates: newCoords };
   city = temp;

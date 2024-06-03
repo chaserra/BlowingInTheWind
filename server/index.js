@@ -103,6 +103,10 @@ io.on("connection", (socket) => {
                 cityIndex++;    
             }
         }
+        city = cityForEachRoom[data];
+        const cityData = cityForEachRoom[data];
+        console.log(`Sending city data to room ${data}`, cityData);
+        io.to(data).emit("city_data", cityData);
 
         // initialise the cityFotEachRoom object so that each room gets a different city
         console.log(`User with ID ${socket.id} joined room: ${data}`);
