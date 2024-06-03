@@ -80,6 +80,10 @@
     z-index: 1;
 }
 
+.pagination > #next-city {
+    display: none;
+}
+
 #cesiumContainer {
     display: block;
     position: relative;

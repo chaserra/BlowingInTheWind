@@ -6,6 +6,7 @@ import { fetchWeatherData } from "./weather.js";
 // Set access token
 Cesium.Ion.defaultAccessToken = config.CESIUM_API_KEY;
 
+
 /*********************************
  * SETUP
  *********************************/
@@ -55,68 +56,41 @@ function cartesianToDegrees(cartesian) {
   return {longitude, latitude};
 }
 
+var city;
+
 // Index iterator
 var currentCityIndex = 0;
-// Array of cities
-let citiesArray = [
-  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 300.0)},
-  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 300.0)},
-  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(2.349014, 48.864716, 300.0)},
-  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 300.0)},
-  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 300.0)},
-  { cityName: "Hamilton", coordinates: Cesium.Cartesian3.fromDegrees(175.269363, -37.781528, 300.0)},
-  { cityName: "Toronto", coordinates: Cesium.Cartesian3.fromDegrees(-79.384293, 43.653908, 300.0)},
-  { cityName: "Sydney", coordinates: Cesium.Cartesian3.fromDegrees(151.209900, -33.865143, 300.0)},
-  { cityName: "San Francisco", coordinates: Cesium.Cartesian3.fromDegrees(-122.431297, 37.773972, 300.0)},
-  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-73.935242, 40.730610, 300.0)},
-  { cityName: "Seoul", coordinates: Cesium.Cartesian3.fromDegrees(127.024612, 37.532600, 300.0)},
-  { cityName: "New Delhi", coordinates: Cesium.Cartesian3.fromDegrees(77.216721, 28.644800, 300.0)},
-  { cityName: "Barcelona", coordinates: Cesium.Cartesian3.fromDegrees(2.154007, 41.390205, 300.0)},
-  { cityName: "Athens", coordinates: Cesium.Cartesian3.fromDegrees(23.727539, 37.983810, 300.0)},
-  { cityName: "Budapest", coordinates: Cesium.Cartesian3.fromDegrees(19.040236, 47.497913, 300.0)},
-  { cityName: "Moscow", coordinates: Cesium.Cartesian3.fromDegrees(37.618423, 55.751244, 300.0)},
-  //{ cityName: "Mexico City", coordinates: Cesium.Cartesian3.fromDegrees(-99.133209, 19.432608, 300.0)},
-  //{ cityName: "Sao Paulo", coordinates: Cesium.Cartesian3.fromDegrees(-46.636111, -23.547573, 300.0)},
-  { cityName: "Cairo", coordinates: Cesium.Cartesian3.fromDegrees(31.233334, 30.033333, 300.0)},
-  { cityName: "Copenhagen", coordinates: Cesium.Cartesian3.fromDegrees(12.568337, 55.676098, 300.0)},
-  { cityName: "London", coordinates: Cesium.Cartesian3.fromDegrees(-0.118092, 51.509865, 300.0)},
-] 
 
 // Array of a random point around different cities
 let randomPointsArray = [];
 
-// Randomise array sequence
 function shuffleArray(array){
   let currentIndex = array.length;
   while(currentIndex != 0){
-    let randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
 
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
   }
 }
 
 // Generate a random point on all cities in the cities array
 // This function also randomises the city sequence
-function generateRandomPoints(){
-  shuffleArray(citiesArray)
-  for(let i = 0; i < citiesArray.length; i++){
-    let shuffledName = citiesArray[i].cityName;
-    let randomPoint = null;
-
-    while(randomPoint == null){
-      randomPoint = getNearbyLocation(citiesArray[i].coordinates);
-    }
-
-    let randomPointObj = {cityName: shuffledName, coordinates: randomPoint}
-    randomPointsArray.push(randomPointObj);
-
-    viewer.entities.add({
-      position: citiesArray[i].coordinates,
-      name: citiesArray[i].cityName,
-      point: { pixelSize: 15, color: Cesium.Color.BLUE }
-    });
+function generateRandomPoints(newCity){
+  let randomPoint = null;
+  while(randomPoint == null){
+    randomPoint = getNearbyLocation(newCity.coordinates);
   }
+
+  let randomPointObj = {cityName: newCity.cityName, coordinates: randomPoint}
+  randomPointsArray.push(randomPointObj);
+
+  viewer.entities.add({
+    position: newCity.coordinates,
+    name: newCity.cityName,
+    point: { pixelSize: 15, color: Cesium.Color.BLUE }
+  });
+
   for(let i = 0; i < randomPointsArray.length; i++){
     viewer.entities.add({
       position: randomPointsArray[i].coordinates,
@@ -126,10 +100,9 @@ function generateRandomPoints(){
   }
 }
 
+
 // Call randomise function
-generateRandomPoints();
-console.log(citiesArray);
-console.log(randomPointsArray);
+//generateRandomPoints();
 
 //gets the wind data and stores it to the module level variables 
 async function fetchAndStoreWind(latitude, longitude){
@@ -257,7 +230,9 @@ async function getNextPoint(originPoint) {
 }
 
 // Teleport to next location
-function nextCity() {
+async function nextCity(next) {
+  // Get random points using city data
+  await generateRandomPoints(next);
   // Reset position
   startTime = viewer.clock.currentTime;
   // Initialise nextTimeStep
@@ -273,9 +248,11 @@ function nextCity() {
   // Increment city index
   currentCityIndex++;
   // Loop back if reached last city
-  if (currentCityIndex >= citiesArray.length) {
+  if (currentCityIndex > randomPointsArray.length) {
     currentCityIndex = 0;
   }
+
+  viewer.trackedEntity = balloon;
 }
 
 // Finds a location near a city's centre coordinate
@@ -329,7 +306,7 @@ balloon = viewer.entities.add({
     }),
   ]),
   // Use path created by the function
-  position: randomPointsArray[currentCityIndex].coordinates, 
+  position: Cesium.Cartesian3.fromDegrees(175.3177, -37.78765, 300.0),
   // Placeholder entity visuals
   ellipsoid: {
     radii: new Cesium.Cartesian3(52.0, 52.0, 52.0),
@@ -378,9 +355,7 @@ viewer.zoomTo(balloon, cameraOffset);
 // viewer.trackedEntity = balloon;
 
 // Generate path for the balloon
-nextCity();
-
-nextCityButton.addEventListener('click', nextCity);
+//nextCityButton.addEventListener('click', nextCity);
 
 /*********************************
  * TIMER
@@ -418,13 +393,13 @@ function startTimer(duration) {
       // Reset duration
       timer = duration;
       // Call nextCity
-      nextCity();
+      //nextCity();
     }
   }, 1000);
 }
 
 // Start 2 minute timer
-startTimer(60 * 1);
+//startTimer(60 * 1);
 
 /*********************************
  * RUNTIME CODE
@@ -452,16 +427,18 @@ Cesium.knockout.getObservable(viewer.animation.viewModel.clockViewModel,
   }
 });
 
-import socket from '../src/SocketInstance'; // Adjust the import path as needed
+const socket = io("http://localhost:3001");
 
-// Function to join a room
-window.joinRoom = async function(room) {
+window.joinRoom = function(room){
   socket.emit("join_room", room);
-};
+}
 
-// Example listener for city_data event
-window.addEventListener('DOMContentLoaded', async () => {
-  socket.on("city_data", (data) => {
-    console.log("Received data from server:", data);
-  });
+socket.on("city_data", (data) => {
+  
+  var newCoords = Cesium.Cartesian3.fromDegrees(data.coordinates[0], data.coordinates[1], data.coordinates[2]);
+  let temp = { cityName: data.city, coordinates: newCoords };
+  city = temp;
+  console.log(city.cityName);
+  nextCity(city);
+
 });
