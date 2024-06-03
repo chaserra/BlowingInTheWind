@@ -14,6 +14,7 @@ let object;
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
 
+
 //conformation for button being clicked
 var buttonClicked = false;
 
@@ -48,6 +49,25 @@ export function imageClick(imageName) {
     filePath = filePaths[6];
   } else if (imageName === 'Image 8') {
     filePath = filePaths[7];
+
+// //Load the file
+// loader.load(
+//   '/Balloon/scene.gltf',
+//   function (gltf) {
+//     //If the file is loaded, add it to the scene
+//     object = gltf.scene;
+//     scene.add(object);
+//     object.position.set(0, -9, 3);
+//     object.rotation.x = 0.55;
+//   },
+//   function (xhr) {
+//     //While it is loading, log the progress
+//     console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+//   },
+//   function (error) {
+//     //If there is an error, log it
+//     console.error(error);
+
   }
   buttonClicked = true; // Set the variable to true when the button is clicked
   scene.remove(object);
@@ -133,6 +153,7 @@ function addLights() {
 //Render the scene
 function animate() {
   requestAnimationFrame(animate);
+
   //Here we could add some code to update the scene, adding some automatic movement
   if (object) object.rotation.y += 0.015;
   renderer.render(scene, camera);
@@ -142,5 +163,83 @@ function animate() {
 loadModel();
 //add lights to the scene
 addLights();
+
+//   if(object) {
+//     //animateLanding(7);
+//     //animateRightTilt();
+//     //animateLeftTilt();
+//     object.rotation.y += 0.005;
+//   }
+//   renderer.render(scene, camera);
+// }
+
+// function animateLeftTilt(){
+//   let new_x_pos, new_y_pos, new_z_pos, tiltingSpeed;
+
+//   new_x_pos = 0;
+//   new_y_pos = -9;
+//   new_z_pos = 3;
+//   tiltingSpeed = 0.0125;
+  
+//   let objAngle = 0.2;
+//   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+//   let objAxis = new THREE.Vector3(0, 0, 0.03);
+
+//   // code for making the balloon continue rotating
+//   //object.rotation.y += tiltingSpeed;
+//   rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+// }
+
+// function animateRightTilt(){
+//   let new_x_pos, new_y_pos, new_z_pos, tiltingSpeed;
+
+//   new_x_pos = 0;
+//   new_y_pos = -9;
+//   new_z_pos = 3;
+//   tiltingSpeed = 0.0125;
+  
+//   let objAngle = 0.2;
+//   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+//   let objAxis = new THREE.Vector3(0, 0, -0.03);
+
+//   // code for making the balloon continue rotating
+//   //object.rotation.y += tiltingSpeed;
+//   rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+// }
+
+// function animateLanding(newXPos){
+//   let new_x_pos, new_y_pos, new_z_pos;
+
+//   new_x_pos = newXPos;
+//   new_y_pos = -9;
+//   new_z_pos = 3;
+  
+//   let objAngle = 0.25;
+//   let objNewPoint = new THREE.Vector3(new_x_pos, new_y_pos, new_z_pos);
+//   let objAxis = new THREE.Vector3(0, 0, -0.03);
+
+//   rotateAboutPivot(object, objNewPoint, objAxis, objAngle);
+// }
+
+// // obj - object (THREE.Object3D or derived)
+// // point - point of rotation (THREE.Vector3)
+// // axis - the axis of rotation (normalized THREE.Vector3)
+// // theta - radian value of rotation
+// // pointIsWorld - boolean indicating the point is in world coordinates (default = false)
+// function rotateAboutPivot(obj, point, axis, theta, pointIsWorld = false){
+//   if(pointIsWorld){
+//       obj.parent.localToWorld(obj.position); // compensate for world coordinate
+//   }
+//   obj.position.sub(point); // remove the offset
+//   obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+//   obj.position.add(point); // re-add the offset
+
+//   if(pointIsWorld){
+//       obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+//   }
+//   obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+// }
+
+
 //Start the 3D rendering
 animate();
