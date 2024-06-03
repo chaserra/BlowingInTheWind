@@ -4,6 +4,7 @@ import ScrollToBottom from 'react-scroll-to-bottom';
 function BitwChat({socket, username, room}) {
     const [currentMessage, setCurrentMessage] = useState("");
     const [messageList, setMessageList] = useState([]);
+    const [scoreList, setScoreList] = useState([]);
 
     const sendMessage = async () =>{
         if(currentMessage !== "" ){
@@ -14,7 +15,7 @@ function BitwChat({socket, username, room}) {
                 time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
 
             };
-
+            
             await socket.emit("send_message", messageData);
             //enables us to see our own message
             setMessageList((list) => [...list, messageData]);
@@ -33,18 +34,35 @@ function BitwChat({socket, username, room}) {
  //calls functions whenever there is a change either by you or other people on the socket 
     useEffect(() => {
         socket.on("receive_message", (data) => {
-        //displays previous list of messages and the new message 
-        setMessageList((list) => [...list, data]);
+        //displays previous list of messages and the new message           
+          setMessageList((list) => [...list, data]);
         });
+        
+        socket.on("update_board", (data) => {
+          setScoreList((list) => {
+            const index = list.findIndex(player => player.id === data.id);
+            if (index !== -1){
+              const updatedScores = [...list];
+              updatedScores[index].score = data.score;
+              return updatedScores;
+            } else {
+              return [...list, data];
+            }
+          });
+        });
+        
         // Cleanup the socket event listener to avoid memory leaks
         return () => {
         socket.off("receive_message");
+        socket.off("update_board");
+        socket.off("show_player_scores");
     };
     }, [socket]);
+
     return (
         <div className= "chat-window">
             <div className="chat-header">
-                <p>Live Chat</p>
+                <p>Blowing in the Wind</p>
             </div>
             <div className="chat-body">
             <ScrollToBottom className="message-container">
@@ -67,11 +85,11 @@ function BitwChat({socket, username, room}) {
             );
           })}
         </ScrollToBottom>
-            </div>
+          </div>
             <div className="chat-footer">
                 <input type = "text" 
                 value = {currentMessage}
-                placeholder = "hello world..."
+                placeholder = "Type your guess here..."
                  onChange={(event) => {
                     setCurrentMessage(event.target.value);
                    }}
@@ -79,9 +97,19 @@ function BitwChat({socket, username, room}) {
                 />
                 <button onClick={sendMessage}>&#9658;</button>
             </div>
-
-        </div>
+            <div className="leaderboard">
+              <h3 className="leaderboard-header">LEADERBOARD</h3>
+                  {scoreList.map((scoreContent, index) => {
+                    return (
+                      <div key={index} className="player-score-div">
+                        <span className="player-name">{scoreContent.name}: </span>
+                        <span className="player-score">{scoreContent.score}</span>
+                      </div>
+                    );
+                  })}
+            </div> 
+          </div>
     );
-}
+}           
 
 export default BitwChat

@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import './App.css';
-import io from 'socket.io-client';
 import BitwChat from './BitwChat';
+import socket from './SocketInstance';
 
-const socket = io.connect("http://localhost:3001");
 
 function App() {
   //initialises user and room state 
@@ -11,12 +10,12 @@ function App() {
   const [room, setRoom] = useState("");
   const [showChat, setShowChat] = useState(false);
 
-  const joinRoom = () => {
-    if(username !== "" && room !== ""){
+  const joinRoom = async () => {
+    if (username !== "" && room !== "") {
       socket.emit("join_room", room);
+      window.joinRoom(room);
       setShowChat(true);
     }
-    
   };
 
   return (
@@ -24,7 +23,7 @@ function App() {
       {/* shows the chat only when show chat is set to true */}
       {!showChat ? (
       <div className = "joinChatContainer">
-      <h3>Join Chat</h3>
+      <h3>Join Game</h3>
       <input type = "text" placeholder = "John..." 
       //whenever the user changes their input, it also changes the username in the username state
        onChange={(event) => {
@@ -37,7 +36,7 @@ function App() {
         setRoom(event.target.value);
        }}/>
       
-      <button onClick ={joinRoom}> Join a Room</button>
+      <button onClick ={joinRoom}> Join a Game</button>
       </div>
       ) : (
        

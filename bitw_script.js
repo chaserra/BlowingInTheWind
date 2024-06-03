@@ -6,14 +6,219 @@
   // Set access token
   Cesium.Ion.defaultAccessToken = config.CESIUM_API_KEY;
 
-  /*********************************
-   * SETUP
-   *********************************/
-  // Initialise viewer
-  const viewer = new Cesium.Viewer("cesiumContainer", {
-    terrain: Cesium.Terrain.fromWorldTerrain(),
-    infoBox: false,
-    selectionIndicator: false,
+
+/*********************************
+ * SETUP
+ *********************************/
+// Initialise viewer
+const viewer = new Cesium.Viewer("cesiumContainer", {
+  terrain: Cesium.Terrain.fromWorldTerrain(),
+  infoBox: false,
+  selectionIndicator: false,
+});
+
+// The viewer object's camera
+const cam = viewer.camera;
+
+// Set default camera pitch
+const pitchAngle = Cesium.Math.toRadians(-15.0);
+const cameraOffset = new Cesium.HeadingPitchRange(0.0, pitchAngle, 300.0);
+viewer.scene.screenSpaceCameraController.enableZoom = false;
+
+const nextCityButton = document.getElementById("next-city");
+
+var balloon;
+
+//viewer.scene.debugShowFramesPerSecond = true;
+
+/*********************************
+ * VISUALISE BUILDINGS
+ *********************************/
+// Google Map's Photorealistic 3d Tileset
+try {
+  const buildingTileSet = await Cesium.createGooglePhotorealistic3DTileset();
+  viewer.scene.primitives.add(buildingTileSet);
+} catch (error) {
+  console.log(`Failed to load tileset: ${error}`);
+}
+
+/*********************************
+ * WIND API
+ *********************************/
+//module lever variables to store wind data
+let windSpeed, windDirection;
+
+//conversion to degrees from cartesian
+function cartesianToDegrees(cartesian) {
+  const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+  const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+  return {longitude, latitude};
+}
+
+// Index iterator
+var currentCityIndex = 0;
+// Array of cities
+let citiesArray = [
+  { cityName: "Auckland", coordinates: Cesium.Cartesian3.fromDegrees(174.763336, -36.848461, 300.0)},
+  { cityName: "Rome", coordinates: Cesium.Cartesian3.fromDegrees(12.496366, 41.902782, 300.0)},
+  { cityName: "Paris", coordinates: Cesium.Cartesian3.fromDegrees(2.349014, 48.864716, 300.0)},
+  { cityName: "Tokyo", coordinates: Cesium.Cartesian3.fromDegrees(139.817413, 35.672855, 300.0)},
+  { cityName: "Dubai", coordinates: Cesium.Cartesian3.fromDegrees(55.296249, 25.276987, 300.0)},
+  { cityName: "Hamilton", coordinates: Cesium.Cartesian3.fromDegrees(175.269363, -37.781528, 300.0)},
+  { cityName: "Toronto", coordinates: Cesium.Cartesian3.fromDegrees(-79.384293, 43.653908, 300.0)},
+  { cityName: "Sydney", coordinates: Cesium.Cartesian3.fromDegrees(151.209900, -33.865143, 300.0)},
+  { cityName: "San Francisco", coordinates: Cesium.Cartesian3.fromDegrees(-122.431297, 37.773972, 300.0)},
+  { cityName: "New York", coordinates: Cesium.Cartesian3.fromDegrees(-73.935242, 40.730610, 300.0)},
+  { cityName: "Seoul", coordinates: Cesium.Cartesian3.fromDegrees(127.024612, 37.532600, 300.0)},
+  { cityName: "New Delhi", coordinates: Cesium.Cartesian3.fromDegrees(77.216721, 28.644800, 300.0)},
+  { cityName: "Barcelona", coordinates: Cesium.Cartesian3.fromDegrees(2.154007, 41.390205, 300.0)},
+  { cityName: "Athens", coordinates: Cesium.Cartesian3.fromDegrees(23.727539, 37.983810, 300.0)},
+  { cityName: "Budapest", coordinates: Cesium.Cartesian3.fromDegrees(19.040236, 47.497913, 300.0)},
+  { cityName: "Moscow", coordinates: Cesium.Cartesian3.fromDegrees(37.618423, 55.751244, 300.0)},
+  //{ cityName: "Mexico City", coordinates: Cesium.Cartesian3.fromDegrees(-99.133209, 19.432608, 300.0)},
+  //{ cityName: "Sao Paulo", coordinates: Cesium.Cartesian3.fromDegrees(-46.636111, -23.547573, 300.0)},
+  { cityName: "Cairo", coordinates: Cesium.Cartesian3.fromDegrees(31.233334, 30.033333, 300.0)},
+  { cityName: "Copenhagen", coordinates: Cesium.Cartesian3.fromDegrees(12.568337, 55.676098, 300.0)},
+  { cityName: "London", coordinates: Cesium.Cartesian3.fromDegrees(-0.118092, 51.509865, 300.0)},
+] 
+
+// Array of a random point around different cities
+let randomPointsArray = [];
+
+// Randomise array sequence
+function shuffleArray(array){
+  let currentIndex = array.length;
+  while(currentIndex != 0){
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+}
+
+// Generate a random point on all cities in the cities array
+// This function also randomises the city sequence
+function generateRandomPoints(){
+  shuffleArray(citiesArray)
+  for(let i = 0; i < citiesArray.length; i++){
+    let shuffledName = citiesArray[i].cityName;
+    let randomPoint = null;
+
+    while(randomPoint == null){
+      randomPoint = getNearbyLocation(citiesArray[i].coordinates);
+    }
+
+    let randomPointObj = {cityName: shuffledName, coordinates: randomPoint}
+    randomPointsArray.push(randomPointObj);
+
+    viewer.entities.add({
+      position: citiesArray[i].coordinates,
+      name: citiesArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.BLUE }
+    });
+  }
+  for(let i = 0; i < randomPointsArray.length; i++){
+    viewer.entities.add({
+      position: randomPointsArray[i].coordinates,
+      name: randomPointsArray[i].cityName,
+      point: { pixelSize: 15, color: Cesium.Color.GREEN }
+    });
+  }
+}
+
+// Call randomise function
+generateRandomPoints();
+console.log(citiesArray);
+console.log(randomPointsArray);
+
+//gets the wind data and stores it to the module level variables 
+async function fetchAndStoreWind(latitude, longitude){
+  const weatherWind=  await fetchWeatherData(latitude, longitude);
+  windDirection = weatherWind.windDirection;
+  windSpeed = weatherWind.windSpeed;
+}
+
+/*********************************
+ * PATHING
+ *********************************/
+// One minute
+const minute = 60;
+/* INITIAL VALUES ON LOAD */
+// Set startTime to current time
+let startTime = viewer.clock.currentTime;
+// Initialise nextTimeStep
+let nextTimeStep = startTime;
+// Set clock settings
+viewer.clock.startTime = startTime.clone();
+viewer.clock.currentTime = startTime.clone();
+//viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
+// Start animating at x1 speed
+viewer.clock.multiplier = 1;
+//viewer.clock.shouldAnimate = true;
+
+/* CREATE PATH */
+// Create the path for the target object
+async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) {
+  // Storage for last point on map where wind data was obtained from
+  var lastPointOnMap = startPos;
+  // Calculate timeStep
+  let timeStep = minute * timeToNextPoint;
+  // Set new stopping point
+  let stop = Cesium.JulianDate.addSeconds(startTime, timeStep * numOfPoints, new Cesium.JulianDate());
+  // Update viewer's clock to extend animations
+  viewer.clock.stopTime = stop.clone();
+
+  // Create SampledPositionProperty (this is a container for the list of points on the map)
+  const positionProperty = new Cesium.SampledPositionProperty();
+
+  // Add the last point on the map to the list of points
+  positionProperty.addSample(startTime, lastPointOnMap); // We might need to remove this eventually as this might bug out if 2 points are on the exact same coordinates
+
+  // Plot points on the map
+  for (let i = 0; i < numPoints; i++) {  
+    // Calculate timestep
+    const time = Cesium.JulianDate.addSeconds(nextTimeStep, timeStepInSeconds, new Cesium.JulianDate());
+    // Get wind data from last point to get the next point to plot
+    const thisPoint = await getNextPoint(lastPointOnMap);
+    // Change lastPoint to this current one
+    lastPointOnMap = thisPoint;
+    // Add to the path
+    positionProperty.addSample(time, thisPoint);
+
+    // Increment time
+    nextTimeStep = time;
+    
+    // Format date and time for easier reading
+    const newDate = Cesium.JulianDate.toGregorianDate(time, new Cesium.GregorianDate());
+    const text = "pos" + (i+1) + " -- " + newDate.year + "/" + newDate.month + "/" + newDate.day + " | "
+               + newDate.hour + ":" + newDate.minute + ":" + newDate.second;
+
+    // Create entity based on sample position
+    viewer.entities.add({
+      position: thisPoint,
+      name: text,
+      point: { pixelSize: 15, color: Cesium.Color.RED }
+    });
+  }
+
+  // Set targetObject availability
+  targetObject.availability = new Cesium.TimeIntervalCollection([
+                                new Cesium.TimeInterval({
+                                  start: viewer.clock.currentTime,
+                                  stop: stop
+                                }),
+                              ]);
+  // Set targetObject path
+  targetObject.position = positionProperty;
+  // Orient targetObject towards movement
+  targetObject.orientation = new Cesium.VelocityOrientationProperty(positionProperty);
+  // Change interpolation mode to make path more curved
+  targetObject.position.setInterpolationOptions({
+    interpolationDegree: 5,
+    interpolationAlgorithm:
+      Cesium.LagrangePolynomialApproximation,
+
   });
 
   // Show fps
@@ -466,6 +671,7 @@
     setTimeout(createPathEntity, 5000);
   }
 
+
   
   function removeAllEntitiesByName(entityName) {
     let entities = viewer.entities.values;
@@ -475,6 +681,81 @@
         viewer.entities.remove(entities[i]);
       }
     }
+  }
+// How many points to put on the map
+let numPoints = 5;
+// Set up clock
+// Time it takes to go to destination
+let timeStepInSeconds = minute * 30;
+
+// Quick camera focus to target entity
+viewer.zoomTo(balloon, cameraOffset);
+// Or set tracked entity for instant zoom
+// viewer.trackedEntity = balloon;
+
+// Generate path for the balloon
+nextCity();
+
+nextCityButton.addEventListener('click', nextCity);
+
+/*********************************
+ * TIMER
+ *********************************/
+let minutesText = document.getElementById("minutes");
+let secondsText = document.getElementById("seconds");
+
+function startTimer(duration) {
+  var timer = duration, minutes, seconds;
+
+  setInterval(function () {
+    // Calculate time to display
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+
+    // Add 0 if less than 10
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    // Display on span
+    minutesText.innerText = minutes;
+    secondsText.innerText = seconds;
+
+    // Change colour to red if timer has 10 seconds left
+    if(timer <= 10) {
+      minutesText.style.color = '#ff0000';
+      secondsText.style.color = '#ff0000';
+    } else {
+      minutesText.style.color = '#ffffff';
+      secondsText.style.color = '#ffffff';
+    }
+
+    // When timer ends
+    if (--timer < 0) {
+      // Reset duration
+      timer = duration;
+      // Call nextCity
+      nextCity();
+    }
+  }, 1000);
+}
+
+// Start 2 minute timer
+startTimer(60 * 1);
+
+/*********************************
+ * RUNTIME CODE
+ *********************************/
+// Tick function
+viewer.clock.onTick.addEventListener(function(clock) {
+  // If clock is playing
+  if(clock.shouldAnimate) {
+    // Change camera angle to 3rd person view (chase cam, no camera controls)
+    //getModelMatrix(balloon, viewer.clock.currentTime, scratch);
+    //cam.lookAtTransform(scratch, new Cesium.Cartesian3(-250, 0, 70));
+
+    // Track balloon (with camera controls)
+    viewer.trackedEntity = balloon;
+
   }
 
   // Finds a location near a city's centre coordinate
@@ -513,6 +794,7 @@
       return null;
     }
   }
+
 
   /*********************************
    * ENTITIES
@@ -728,3 +1010,14 @@
     }
   });
 
+
+});
+
+const socket = io();
+
+socket.on('message', (data) => {
+  console.log('Message from server:', data);
+});
+
+socket.emit('chat_message', 'Hello, server!');
+}
