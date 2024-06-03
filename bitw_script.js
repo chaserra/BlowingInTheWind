@@ -452,7 +452,8 @@
     // Create wind path for next city in the list. Spawn balloon on that location.
     createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
     console.log(randomPointsArray[currentCityIndex].cityName);
-    
+    //reset clock
+    viewer.clock.multiplier = 1;
     // Increment city index
     currentCityIndex++;
     // Loop back if reached last city
