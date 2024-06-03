@@ -4,156 +4,105 @@
     position: relative;
 }
 
-#balloonContainer{
+#balloonContainer {
     top: 5%;
     left: 25%;
     width: 50%;
     height: 50%;
     position: absolute;
     pointer-events: none;
-}
+  }
+  
+  /* Container for the dropdown */
+  #dropdownContainer {
+    position: absolute;
+    top: 10%;
+    right: 0;
+    width: auto;
+    height: auto;
+    z-index: 10;
+  }
 
-@font-face {
-    font-family: Modak;
-    src: url(fonts/Modak-Regular.ttf);
-}
-@font-face {
-    font-family: Sniglet;
-    src: url(fonts/Sniglet-ExtraBold.ttf);
-}
-@font-face {
-    font-family: Titan;
-    src: url(fonts/TitanOne-Regular.ttf);
-}
-
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #81b1e5;
-}
-
-.container span{
-    position: fixed;
-    animation: animate 2s linear infinite;
-    z-index: 2;
-}
-.container span i{
-    color:#ffff;
-    font-size:10 px;
-}
-.container span:nth-child(1){
-    left:60px;
-    animation-delay:0.6s;
-    top: 5%;
-}
-.container span:nth-child(2){
-    left: 10%;
-    animation-delay:2;
-    top:40%;
-}
-.container span:nth-child(3){
-    left:20%;
-    animation-delay:5s;
-    top:15%;
-}
-.container span:nth-child(4){
-    left:26%;
-    animation-delay:4s;
-    top: 67%;
-}
-.container span:nth-child(5){
-    left:40%;
-    animation-delay:0.5s;
-    top: 85%;
-}.container span:nth-child(6){
-    left:50%;
-    animation-delay:5s;
-    top: 20%;
-}.container span:nth-child(7){
-    left:73%;
-    animation-delay:6s;
-    top: 65%;
-}.container span:nth-child(8){
-    left:70%;
-    animation-delay:3.5s;
-    top: 12s;
-}.container span:nth-child(9){
-    left:80%;
-    animation-delay:9s;
-    top: 75%;
-}
-.container span:nth-child(10){
-    left:95%;
-    animation-delay:3s;
-    top: 14%;
-}
-.container span:nth-child(11){
-    left:17%;
-    animation-delay:.3s;
-    top: 50%;
-}
-.container span:nth-child(12){
-    left:10%;
-    animation-delay:.9s;
-    top: 30%;
-}
-.container span:nth-child(13){
-    left:95%;
-    animation-delay:.9s;
-    top: 60%;
-}.container span:nth-child(14){
-    left:74%;
-    animation-delay:.9s;
-    top: 40%;
-}.container span:nth-child(15){
-    left:67%;
-    animation-delay:.9s;
-    top: 45%;
-}
-
-@keyframes animate{
-    0%{
-        opacity:0;
-    }
-    50%{
-        opacity: 1;
-    }
-    100%{
-        opacity:0;
-    }
-}
-
-
-.container {
+  
+  
+  /* Dropdown styles */
+  .dropdown {
     position: relative;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-}
-
-img {
+    display: inline-block;
+  }
+  
+  .dropbtn {
+    background-color: #303336;
+    color: #edffff;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .dropbtn:hover {
+    background-color: #48b;
+  }
+  
+  .dropdown-content {
+    display: none;
     position: absolute;
-    top: 5%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* To cover the entire container */
-}
-
-#title {
-    position: absolute;
-    top: 10%; /* Adjust vertical positioning if needed */
-    left: 50%;
-    letter-spacing: 5px;
-    transform: translate(-50%, -50%);
-    font-family: Titan, Modak, Sniglet;
-    text-align: center;
-    color: #e46516;
+    background-color: rgba(48, 51, 54, 0.8);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
     z-index: 1;
-    width: 80%; /* Adjust the width as needed */
-    max-width: 600px; /* Optional: Set a maximum width to prevent it from becoming too wide on larger screens */
-    margin: 0 auto; /* Center the title horizontally */
+
+    border-radius: 5px;
+    right: 0;
+    max-height: 500px; 
+    overflow-y: auto;
+  }
+  
+  .dropdown-content img {
+    width: 100px;
+    height: auto;
+    margin: 5px;
+    cursor: pointer;
+    border: 1px solid #444;
+    border-radius: 5px;
+  }
+  
+  .dropdown-content img:hover {
+    border-color: #aef;
+    box-shadow: 0 0 8px #fff;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  /* Media queries for responsiveness */
+  @media (max-width: 768px) {
+    .dropbtn {
+      font-size: 14px;
+      padding: 12px;
+    }
+  
+    .dropdown-content img {
+      width: 80px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .dropbtn {
+      font-size: 12px;
+      padding: 10px;
+    }
+  
+    .dropdown-content img {
+      width: 60px;
+    }
+  }
+
+/*     width: 80%; /* Adjust the width as needed 
+    max-width: 600px; /* Optional: Set a maximum width to prevent it from becoming too wide on larger screens 
+    margin: 0 auto; /* Center the title horizontally 
     text-shadow: -3px 0 rgb(125, 55, 1), 0 3px rgb(125, 55, 1), 3px 0 rgb(125, 55, 1), 0 -3px rgb(125, 55, 1);
 
 }
@@ -173,24 +122,24 @@ img {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    z-index: 1; /* To ensure the button appears above the image */
+    z-index: 1; /* To ensure the button appears above the image 
 }
 .button {
     display: inline-block;
-    padding: 30px; /* Adjust button size as needed */
-    font-size: 30px; /* Adjust button font size as needed */
+    padding: 30px; /* Adjust button size as needed 
+    font-size: 30px; /* Adjust button font size as needed 
     font-family: Sniglet, Modak, Titan;
     background-color: #e46516;
-    color: white; /* Set button text color */
-    text-decoration: none; /* Remove default link underline */
-    border: none; /* Remove button border */
-    border-radius: 7px; /* Apply button border radius */
-    width: auto; /* Set button width */
-    height: auto; /* Set button height */
+    color: white; /* Set button text color 
+    text-decoration: none; /* Remove default link underline 
+    border: none; /* Remove button border 
+    border-radius: 7px; /* Apply button border radius 
+    width: auto; /* Set button width 
+    height: auto; /* Set button height 
     text-shadow: -3px 0 rgb(125, 55, 1), 0 3px rgb(125, 55, 1), 3px 0 rgb(125, 55, 1), 0 -3px rgb(125, 55, 1);
 
 }
 
 .button:hover {
-    background-color: #b14d0e; /* Change button background color on hover */
-}
+    background-color: #b14d0e; /* Change button background color on hover 
+} */
