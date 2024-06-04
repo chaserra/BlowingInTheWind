@@ -1,3 +1,5 @@
+/////////////  PUBLIC //////////////
+
 // Import config.js
 import config from "./config.js";
 //Import weather.js to bitw script
@@ -127,11 +129,22 @@ viewer.clock.currentTime = startTime.clone();
 //viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
 // Start animating at x1 speed
 viewer.clock.multiplier = 1;
-//viewer.clock.shouldAnimate = true;
+viewer.clock.shouldAnimate = true;
+
+  // Array to store path positions
+  let positionArray = [];
+  // Track the last time generatePath that was called
+  let lastGeneratePathTime = viewer.clock.currentTime;
+  let pathEntityInterval = 200;
+  let pathSpeed = 0.3;
+  let pathEntitiesRemoved = 0;
+  let epsilon = 0.00005;   // tolerance value
 
 /* CREATE PATH */
 // Create the path for the target object
 async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) {
+  //Reset array
+  positionArray = [];
   // Storage for last point on map where wind data was obtained from
   var lastPointOnMap = startPos;
   // Calculate timeStep
@@ -155,6 +168,8 @@ async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) 
     const thisPoint = await getNextPoint(lastPointOnMap);
     // Change lastPoint to this current one
     lastPointOnMap = thisPoint;
+    //add position to array
+    positionArray.push(thisPoint);
     // Add to the path
     positionProperty.addSample(time, thisPoint);
 
@@ -194,6 +209,108 @@ async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) 
 
   return positionProperty;
 }
+
+/* Create animated path*/
+  // Generate animated path
+  async function animatePath(pEntity) {
+    // Create SampledPositionProperty
+    //console.log("LOG 1 (animatePath):", new Date().toISOString());
+    const positionProperty = new Cesium.SampledPositionProperty();
+    
+    // Plot points on the map
+    let pEntityStartTime = viewer.clock.currentTime;
+    //positionProperty.addSample(pEntityStartTime, startPos); 
+    
+    //add first position
+    positionProperty.addSample(pEntityStartTime, randomPointsArray[currentCityIndex - 1].coordinates);
+    //console.log("Path Point One: " + randomPointsArray[currentCityIndex].coordinates)
+    nextTimeStep = pEntityStartTime;
+    
+    for(let i = 0; i < positionArray.length; i++) {
+      const time = Cesium.JulianDate.addSeconds(nextTimeStep, timeStepInSeconds * pathSpeed, new Cesium.JulianDate());
+      var thisPoint = positionArray[i];
+
+      //console.log("Entity position" + i + ": ");
+      console.log(thisPoint);
+
+      positionProperty.addSample(time, thisPoint);
+      //console.log("Path Point: " + thisPoint);
+      nextTimeStep = time;
+      // display position
+      
+      // viewer.entities.add({
+      //   position: thisPoint,
+      //   //name: text,
+      //   point: { pixelSize: 10, color: Cesium.Color.GREEN }
+      // });
+    }
+    //console.log("LOG 2 (animatePath):", new Date().toISOString());
+
+    pEntity.position = positionProperty;
+    // Orient balloon towards movement
+    pEntity.orientation = new Cesium.VelocityOrientationProperty(positionProperty);
+    // Change interpolation mode to make path more curved
+    pEntity.position.setInterpolationOptions({
+      interpolationDegree: 5,
+      interpolationAlgorithm:
+        Cesium.LagrangePolynomialApproximation,
+    });
+
+    //console.log("LOG 3 (animatePath):", new Date().toISOString());
+
+    //let lastPositionCheckTime = Cesium.JulianDate.now();
+
+    viewer.clock.onTick.addEventListener(function() {
+      if (viewer.clock.shouldAnimate) {
+        //console.log("LOG 4 (animatePath):", new Date().toISOString());
+        const currentTime = viewer.clock.currentTime;
+        //const elapsedTime = Cesium.JulianDate.secondsDifference(currentTime, lastPositionCheckTime);
+        
+        //if (elapsedTime >= 10) {
+          //let positionAtTime = positionProperty.getValue(viewer.clock.currentTime);
+        if(positionProperty.getValue(viewer.clock.currentTime) !== undefined) {
+          //console.log("LOG 7 (animatePath):", new Date().toISOString());
+          
+          // let positionAtTime = roundPosition(positionProperty.getValue(viewer.clock.currentTime));
+          // let finalPosition = roundPosition(positionArray[positionArray.length - 1]);
+
+          let positionAtTime = positionProperty.getValue(viewer.clock.currentTime);
+          let finalPosition = positionArray[positionArray.length - 1];
+
+          //console.log("Position at time: " + positionAtTime);
+          //console.log("Final position: " + finalPosition);
+
+          //console.log("LOG 5: POSITON AT GIVEN TIME: " + positionAtTime + " at " + new Date().toISOString());
+          
+          //console.log("Position at given time: " + positionAtTime);
+          //console.log("Final Position: " + finalPosition);
+          
+          
+          if (Cesium.Cartesian3.equalsEpsilon(positionAtTime, finalPosition, epsilon)) {
+            viewer.entities.remove(pEntity);
+            pathEntitiesRemoved++;
+            console.log("Removed: " + pathEntitiesRemoved);
+          }
+          else{
+            //console.log("Positions not equal");
+          }
+
+          //lastPositionCheckTime = currentTime;     
+        }
+        //}
+      }
+    });
+
+    //console.log("LOG 6 (animatePath):", new Date().toISOString());
+
+    // console.log("Sampled position: ");
+    // console.log(positionProperty);
+    
+    console.log("NUMBER OF ACTIVE ENTITIES: " + countActiveEntities());
+    //console.log("ENTITY POSITIONS: ");
+    //console.log(positionProperty);
+    return positionProperty;
+  }
 
 /* GET NEXT POINT */
 // Get next point using wind data
@@ -244,13 +361,19 @@ async function nextCity(next) {
   // Create wind path for next city in the list. Spawn balloon on that location.
   createPath(balloon, randomPointsArray[currentCityIndex].coordinates, numPoints, timeStepInSeconds);
   console.log(randomPointsArray[currentCityIndex].cityName);
-
+  //reset clock
+  viewer.clock.multiplier = 1;
+  viewer.clock.shouldAnimate = true;
   // Increment city index
   currentCityIndex++;
   // Loop back if reached last city
   if (currentCityIndex > randomPointsArray.length) {
     currentCityIndex = 0;
   }
+
+  //remove all previous path entities
+  removeAllEntitiesByName("Path Entity");
+  setTimeout(createPathEntity, 5000);
 
   viewer.trackedEntity = balloon;
 }
@@ -322,6 +445,124 @@ balloon = viewer.entities.add({
     width: 10,
   },
 });
+
+// Create a compass element
+var compass = document.createElement('div');
+compass.className = 'cesium-compass';
+viewer.container.appendChild(compass);
+//set to north
+compass.style.transform = 360 - Cesium.Math.toDegrees( viewer.camera.heading );
+
+// Update compass orientation when camera changes
+viewer.scene.postRender.addEventListener(function() {
+    var camera = viewer.camera;
+    var heading = Cesium.Math.toDegrees(camera.heading).toFixed(1);
+    compass.style.transform = 'rotate(' + (-heading) + 'deg)';
+});
+
+
+// CSS styles for the compass
+var style = document.createElement('style');
+style.textContent = `
+    .cesium-compass {
+        position: absolute;
+        bottom: 40px;
+        right: 40px;
+        width: 100px;
+        height: 100px;
+        background-image: url('compass.png'); /* Image for the compass needle */
+        background-size: contain;
+        transition: transform 0.5s;
+    }
+`;
+document.head.appendChild(style);
+
+//Create pathEntityentity
+async function createPathEntity(){
+  //console.log("entity creation");
+  const pathEntity = viewer.entities.add({ 
+    name: "Path Entity",
+    // Move entity via simulation time
+    
+    availability: new Cesium.TimeIntervalCollection([
+      new Cesium.TimeInterval({
+        start: viewer.clock.currentTime,
+        stop: Cesium.JulianDate.addSeconds(viewer.clock.currentTime, timeStepInSeconds * numPoints, new Cesium.JulianDate()),
+      }),
+    ]),
+    // Use the same starting position as the target entity
+    position: randomPointsArray[currentCityIndex], // Change this to random position on map
+
+    box : {
+      dimensions : new Cesium.Cartesian3(30, 8, 2),
+      material : Cesium.Color.BLUE,
+      //outline : true,
+      outlineColor : Cesium.Color.YELLOW
+    },
+    // path: {
+    //   resolution: 1,
+    //   material: new Cesium.PolylineGlowMaterialProperty({
+    //     glowPower: 0.1,
+    //     color: Cesium.Color.BLUE,
+    //   }),
+    //   width: 15,
+    // },
+  });
+
+  //console.log("LOG: Entity created at", new Date().toISOString());
+
+  await animatePath(pathEntity);
+  //console.log("LOG: Path animation completed at", new Date().toISOString());
+}
+
+//createPathEntity();
+function generateAnimatedPath(){
+  //console.log("generate method called");
+  if(viewer.clock.shouldAnimate){
+    //console.log("clock animated");
+    createPathEntity();
+  }
+}
+//first path entity - called only once
+//NOTE: if clock is started as soon as program is loaded this entity gets removed
+//  wait a few seconds for game to load or increase the setTimeout time 
+setTimeout(createPathEntity, 4000);
+
+// Set up the onTick event listener
+viewer.clock.onTick.addEventListener(function(clock) {
+  // Calculate the elapsed time since the last call to generatePath
+  const elapsedTime = Cesium.JulianDate.secondsDifference(clock.currentTime, lastGeneratePathTime);
+
+  // Check if the defined interval has passed since the last call
+  if (elapsedTime >= pathEntityInterval) {
+    // Call generatePath
+    generateAnimatedPath();
+
+    // Update the lastGeneratePathTime to the current time
+    lastGeneratePathTime = clock.currentTime;
+  }
+});
+
+// Count active entities
+function countActiveEntities() {
+  let activeCount = 0;
+  viewer.entities.values.forEach(function(entity) {
+      if (entity.isShowing) {
+          activeCount++;
+      }
+  });
+  return activeCount;
+}
+
+function removeAllEntitiesByName(entityName) {
+  let entities = viewer.entities.values;
+
+  for (let i = entities.length - 1; i >= 0; i--) {
+    if (entities[i].name === entityName) {
+      viewer.entities.remove(entities[i]);
+    }
+  }
+}
 
 //Set up chase camera
 var matrix3Scratch = new Cesium.Matrix3();

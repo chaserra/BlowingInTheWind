@@ -289,6 +289,80 @@ html, body {
     }
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+    }
+
+  .dropbtn {
+    background-color: #303336;
+    color: #edffff;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .dropbtn:hover {
+    background-color: #48b;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgba(48, 51, 54, 0.8);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
+    z-index: 1;
+
+    border-radius: 5px;
+    right: 0;
+    max-height: 500px; 
+    overflow-y: auto;
+  }
+  
+  .dropdown-content img {
+    width: 100px;
+    height: auto;
+    margin: 5px;
+    cursor: pointer;
+    border: 1px solid #444;
+    border-radius: 5px;
+  }
+  
+  .dropdown-content img:hover {
+    border-color: #aef;
+    box-shadow: 0 0 8px #fff;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  
+  /* Media queries for responsiveness */
+  @media (max-width: 768px) {
+    .dropbtn {
+      font-size: 14px;
+      padding: 12px;
+    }
+  
+    .dropdown-content img {
+      width: 80px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .dropbtn {
+      font-size: 12px;
+      padding: 10px;
+    }
+  
+    .dropdown-content img {
+      width: 60px;
+    }
+  }
+
 
 .container {
     position: relative;

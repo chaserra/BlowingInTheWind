@@ -10,6 +10,10 @@
   <script src="/socket.io/socket.io.js"></script>  
   <script type="module" src="bitw_script.js"></script>
   <script type="module" src="/balloon.js"></script>
+  <script type="module">
+    import { imageClick } from './balloon.js';
+    window.imageClick = imageClick; // Make the function globally accessible
+    </script>
   <!-- Import React and ReactDOM -->
   <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
@@ -43,9 +47,21 @@
         <a href="loading.html">
           <button>Exit</button>
         </a>    
-        <button id="next-city">
-          <span>Next</span>
-        </button>
+        <div id="dropdownContainer">
+          <div class="dropdown">
+            <button class="dropbtn">Select Balloon</button>
+            <div class="dropdown-content">
+              <img src="skins/image1.png" alt="Image 1" class="dropdown-img" onclick="imageClick('Image 1')">
+              <img src="skins/image2.png" alt="Image 2" class="dropdown-img" onclick="imageClick('Image 2')">
+              <img src="skins/image3.png" alt="Image 3" class="dropdown-img" onclick="imageClick('Image 3')">
+              <img src="skins/image4.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 4')">
+              <img src="skins/image5.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 5')">
+              <img src="skins/image6.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 6')">
+              <img src="skins/image7.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 7')">
+              <img src="skins/image8.png" alt="Image 4" class="dropdown-img" onclick="imageClick('Image 8')">
+            </div>
+          </div>
+        </div>
       </div>
       <div id="timer-container">
         <span id="minutes">00</span>
