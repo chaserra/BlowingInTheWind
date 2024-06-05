@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,700");
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,700");
+@import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Hubballi&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap');
 
 .App {
   width: 100vw;
@@ -124,11 +125,14 @@ body {
 
 .chat-window .chat-body {
   /*height: calc(450px - (45px + 70px));*/
+  position: relative;
   height: 100%;
   background: #ffffff;
   background-repeat: no-repeat;
   z-index: 1;
-  position: relative;
+  font-family: "Source Code Pro", monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .chat-window .chat-body .message-container {
@@ -175,9 +179,12 @@ body {
 
 #you .message-meta {
   justify-content: flex-start;
-  margin-left: 5px;
+  margin: 0 5px;
+  padding: 5px 10px;
   color: rgba(21, 59, 85, 0.932);
   background-color: lightblue;
+  border: 1px solid transparent;
+  border-radius: 15px;
 
 }
 
@@ -225,8 +232,9 @@ body {
   border: 1px solid #e8e8e8;
   border-radius: 25px;
 
-  outline: none;
-  font-family: "Titan";
+  font-family: "Source Code Pro", monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .chat-window .chat-footer button {
