@@ -14,25 +14,100 @@ let object;
 //Instantiate a loader for the .gltf file
 const loader = new GLTFLoader();
 
-//Load the file
-loader.load(
-  '/Balloon/scene.gltf',
-  function (gltf) {
-    //If the file is loaded, add it to the scene
-    object = gltf.scene;
-    scene.add(object);
-    object.position.set(0, -9, 3);
-    object.rotation.x = 0.55;
-  },
-  function (xhr) {
-    //While it is loading, log the progress
-    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-  },
-  function (error) {
-    //If there is an error, log it
-    console.error(error);
+//conformation for button being clicked
+var buttonClicked = false;
+
+var filePath;
+//array for the different file paths
+var filePaths = [
+  '/Balloons/Balloon/scene.gltf',
+  '/Balloons/Balloon1/scene.gltf',
+  '/Balloons/Balloon2/scene.gltf',
+  '/Balloons/Balloon3/scene.gltf',
+  '/Balloons/Balloon4/scene.gltf',
+  '/Balloons/Balloon5/scene.gltf',
+  '/Balloons/Balloon6/scene.gltf',
+  '/Balloons/Balloon7/scene.gltf',
+];
+
+//choosing the file path from the balloon chosen by user
+export function imageClick(imageName) {
+  if (imageName === 'Image 1') {
+    filePath = filePaths[0];
+  } else if (imageName === 'Image 2') {
+    filePath = filePaths[1];
+  } else if (imageName === 'Image 3') {
+    filePath = filePaths[2];
+  } else if (imageName === 'Image 4') {
+    filePath = filePaths[3];
+  } else if (imageName === 'Image 5') {
+    filePath = filePaths[4];
+  } else if (imageName === 'Image 6') {
+    filePath = filePaths[5];
+  } else if (imageName === 'Image 7') {
+    filePath = filePaths[6];
+  } else if (imageName === 'Image 8') {
+    filePath = filePaths[7];
   }
-);
+  buttonClicked = true; // Set the variable to true when the button is clicked
+  scene.remove(object);
+  loadModel(); // Call the loadModel function
+}
+
+// function to load a balloon based on the file path chosen by the function
+function loadModel() {
+
+  //function for button conformation
+  function isButtonClicked() {
+    return buttonClicked;
+  }
+
+  isButtonClicked();
+  var defaultPath = '/Balloons/Balloon/scene.gltf'; //default path for the balloon image
+  if (!buttonClicked) {
+    filePath = defaultPath; // Use default model path if the button hasn't been pressed yet
+  }
+  //Load the file
+  loader.load(
+    filePath,
+    function (gltf) {
+      //If the file is loaded, add it to the scene
+      object = gltf.scene;
+      // Remove previous object from the scene if it exists
+
+      scene.add(object);
+
+      object.position.set(0, -9, 0);
+      object.rotation.x = 0.55;
+      //object.rotation.y = 0.4;
+
+      // Create a new ShaderMaterial
+      const material = new THREE.ShaderMaterial({
+        vertexShader: vertexShaderCode,
+        fragmentShader: fragmentShaderCode,
+        uniforms: {
+          lightPosition: { value: new THREE.Vector3(500, 500, 500) },
+          viewPosition: { value: camera.position },
+          lightColor: { value: new THREE.Color(0xffffff) },
+          objectColor: { value: new THREE.Color(0xff0000) },
+          shininess: { value: 100 },
+        },
+      });
+
+      // Assign the ShaderMaterial to the balloon object
+      object.material = material;
+
+    },
+    function (xhr) {
+      //While it is loading, log the progress
+      console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function (error) {
+      //If there is an error, log it
+      console.error(error);
+    }
+  );
+}
 
 //Instantiate a new renderer and set its size
 const renderer = new THREE.WebGLRenderer({ alpha: true }); //Alpha: true allows for the transparent background
@@ -132,5 +207,7 @@ function rotateAboutPivot(obj, point, axis, theta, pointIsWorld = false){
   obj.rotateOnAxis(axis, theta); // rotate the OBJECT
 }
 
+
+loadModel();
 //Start the 3D rendering
 animate();

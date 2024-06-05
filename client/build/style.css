@@ -70,6 +70,7 @@
 }
 
 .pagination {
+    width: 100%;
     display: block;
     position: absolute;
     top: 0;
@@ -289,6 +290,16 @@ html, body {
     }
 }
 
+/* Container for the dropdown */
+#dropdownContainer {
+    position: absolute;
+    top: 10%;
+    right: 3%;
+    width: auto;
+    height: auto;
+    z-index: 10;
+  }
+
 .dropdown {
     position: relative;
     display: inline-block;
@@ -302,6 +313,7 @@ html, body {
     border: none;
     cursor: pointer;
     border-radius: 4px;
+    width: 150px;
   }
   
   .dropbtn:hover {
@@ -311,6 +323,8 @@ html, body {
   .dropdown-content {
     display: none;
     position: absolute;
+    width: 150px;
+    height: 250px;
     background-color: rgba(48, 51, 54, 0.8);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     padding: 12px 16px;
@@ -323,6 +337,8 @@ html, body {
   }
   
   .dropdown-content img {
+    display: inline-block;
+    position: relative;
     width: 100px;
     height: auto;
     margin: 5px;
