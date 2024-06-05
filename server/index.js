@@ -47,7 +47,7 @@ let citiesArray = [
     { city: "San Francisco", coordinates: [-122.431297, 37.773972, 300.0]},
     { city: "New York", coordinates: [-73.935242, 40.730610, 300.0]},
     //{ city: "Seoul", coordinates: [127.024612, 37.532600, 300.0]},
-    { city: "New Delhi", coordinates: [77.216721, 28.644800, 300.0]},
+    //{ city: "New Delhi", coordinates: [77.216721, 28.644800, 300.0]},
     { city: "Barcelona", coordinates: [2.154007, 41.390205, 300.0]},
     { city: "Athens", coordinates: [23.727539, 37.983810, 300.0]},
     { city: "Budapest", coordinates: [19.040236, 47.497913, 300.0]},

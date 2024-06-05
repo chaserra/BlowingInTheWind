@@ -169,7 +169,8 @@ async function createPath(targetObject, startPos, numOfPoints, timeToNextPoint) 
     // Change lastPoint to this current one
     lastPointOnMap = thisPoint;
     //add position to array
-    positionArray.push(thisPoint);
+    //positionArray.push(thisPoint);
+    positionArray[i] = thisPoint;
     // Add to the path
     positionProperty.addSample(time, thisPoint);
 
