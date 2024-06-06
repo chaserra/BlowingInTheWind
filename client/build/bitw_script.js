@@ -135,8 +135,8 @@ viewer.clock.multiplier = 1;
   let positionArray = [];
   // Track the last time generatePath that was called
   let lastGeneratePathTime = viewer.clock.currentTime;
-  let pathEntityInterval = 200;
-  let pathSpeed = 0.3;
+  let pathEntityInterval = 100;
+  let pathSpeed = 0.1;
   let pathEntitiesRemoved = 0;
   let epsilon = 0.00005;   // tolerance value
 
@@ -495,7 +495,7 @@ async function createPathEntity(){
     position: randomPointsArray[currentCityIndex], // Change this to random position on map
 
     box : {
-      dimensions : new Cesium.Cartesian3(20, 2, 1),
+      dimensions : new Cesium.Cartesian3(30, 4, 2),
       material : Cesium.Color.BLUE,
       //outline : true,
       outlineColor : Cesium.Color.YELLOW

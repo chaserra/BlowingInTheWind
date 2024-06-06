@@ -83,8 +83,8 @@ function loadModel() {
 
       // Create a new ShaderMaterial
       const material = new THREE.ShaderMaterial({
-        vertexShader: vertexShaderCode,
-        fragmentShader: fragmentShaderCode,
+        //vertexShader: vertexShaderCode,
+        //fragmentShader: fragmentShaderCode,
         uniforms: {
           lightPosition: { value: new THREE.Vector3(500, 500, 500) },
           viewPosition: { value: camera.position },
